@@ -1,22 +1,28 @@
+import NavLink from "./nav-link";
 import Link from "next/link";
+import { Film } from "lucide-react";
 
 export default function Header() {
   return (
     <div className="py-4 flex justify-between">
-      <div>Test</div>
-      <nav>
-        <ul className="flex space-x-4">
+      <Link href="/" className="flex items-center space-x-2">
+        <Film className="w-8 h-8 text-blue-600" />
+        <span className="text-xl font-medium">CineTrack</span>
+      </Link>
+
+      <nav className="flex items-center">
+        <ul className="flex space-x-6">
           <li>
-            <Link href="/">Home</Link>
+            <NavLink href="/">Home</NavLink>
           </li>
           <li>
-            <Link href="/movies">Movies</Link>
+            <NavLink href="/movies">Movies</NavLink>
           </li>
           <li>
-            <Link href="/watches">Watches</Link>
+            <NavLink href="/watches">Watches</NavLink>
           </li>
           <li>
-            <Link href="/signin">Sign in</Link>
+            <NavLink href="/signin">Sign in</NavLink>
           </li>
         </ul>
       </nav>
