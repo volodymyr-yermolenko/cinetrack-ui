@@ -7,7 +7,7 @@ export default function Header() {
     <div className="py-4 flex justify-between">
       <Link href="/" className="flex items-center space-x-2">
         <Film className="w-8 h-8 text-blue-600" />
-        <span className="text-xl font-medium">CineTrack</span>
+        <span className="text-xl font-semibold">CineTrack</span>
       </Link>
 
       <nav className="flex items-center">

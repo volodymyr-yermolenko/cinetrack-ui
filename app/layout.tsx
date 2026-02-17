@@ -14,13 +14,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>
-        <header className="border-b border-gray-300 mb-4">
+      <body className="min-h-screen flex flex-col">
+        <header className="border-b border-gray-300">
           <div className="container">
             <Header />
           </div>
         </header>
-        <main>
+        <main className="flex-1 bg-gray-50">
           <div className="container">{children}</div>
         </main>
       </body>
