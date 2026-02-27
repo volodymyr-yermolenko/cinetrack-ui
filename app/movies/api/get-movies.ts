@@ -1,7 +1,22 @@
-import { apiClient } from "@/app/lib/api-client";
+"use server";
+
+import { apiClient } from "@/lib/api-client";
 import { Movie } from "../types/movie";
 
-export async function getMovies(genreId?: number): Promise<Movie[]> {
-  const path = genreId ? `/movies?genreId=${genreId}` : "/movies";
-  return apiClient.get<Movie[]>(path, "Failed to fetch movies");
+export async function getMovies(
+  genreId?: number,
+  search?: string,
+): Promise<Movie[]> {
+  const params = new URLSearchParams();
+  if (genreId) {
+    params.append("genreId", genreId.toString());
+  }
+  if (search) {
+    params.append("search", search);
+  }
+
+  return apiClient.get<Movie[]>(
+    `/movies?${params.toString()} `,
+    "Failed to fetch movies",
+  );
 }

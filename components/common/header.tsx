@@ -1,4 +1,4 @@
-import NavLink from "./nav-link";
+import NavLink from "../ui/nav-link";
 import Link from "next/link";
 import { Film } from "lucide-react";
 

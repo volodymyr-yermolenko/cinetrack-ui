@@ -1,11 +1,9 @@
-import { Genre } from "./genre";
 import { MovieType } from "./movie-type";
 
-export interface Movie {
-  id: number;
+export interface CreateMovie {
   title: string;
   releaseYear: number;
   movieType: MovieType;
   imageUrl: string | null;
-  genres: Genre[];
+  genreIds: number[];
 }
