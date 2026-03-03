@@ -1,3 +1,5 @@
+"use server";
+
 import { Genre } from "../types/genre";
 import { apiClient } from "@/lib/api-client";
 

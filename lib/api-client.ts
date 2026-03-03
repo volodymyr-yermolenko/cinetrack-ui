@@ -53,4 +53,36 @@ export const apiClient = {
 
     return data as T;
   },
+
+  async put<T>(
+    path: string,
+    body: any,
+    defaultErrorMessage: string = "Failed to update data",
+  ): Promise<T> {
+    let data: unknown = null;
+
+    const response = await fetch(`${BASE_API_URL}${path}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    const contentType = response.headers.get("Content-Type");
+    if (contentType?.includes("application/json")) {
+      data = await response.json();
+    }
+
+    if (!response.ok) {
+      const errorMessage = (data as any)?.error || defaultErrorMessage;
+      const error =
+        response.status === 400
+          ? new ValidationError(errorMessage)
+          : new Error(errorMessage);
+      throw error;
+    }
+
+    return data as T;
+  },
 };

@@ -1,20 +1,23 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createMovie } from "../api/create-movie";
 import { redirect } from "next/navigation";
 import z from "zod";
 import { ActionResult } from "@/types/action-result";
 import { ValidationError } from "@/lib/errors/validation-error";
 import { formatZodFieldErrors } from "@/lib/utils/zod-utils";
 import { uploadImage } from "@/lib/cloudinary";
+import { updateMovie } from "../api/update-movie";
 import { validateMovie } from "./validation";
 
-export async function createMovieAction(
+export async function updateMovieAction(
+  movieId: number,
   prevState: ActionResult,
   formData: FormData,
 ): Promise<ActionResult> {
   const movie = validateMovie(formData);
+
+  let imageUrl = formData.get("imageUrl")?.toString() || null;
 
   if (!movie.success) {
     const flattened = z.flattenError(movie.error);
@@ -26,7 +29,6 @@ export async function createMovieAction(
 
   const { image: imageFile, ...movieData } = movie.data;
 
-  let imageUrl: string | null = null;
   if (imageFile && imageFile.size > 0) {
     try {
       imageUrl = await uploadImage(imageFile);
@@ -39,7 +41,7 @@ export async function createMovieAction(
   }
 
   try {
-    await createMovie({ ...movieData, imageUrl });
+    await updateMovie(movieId, { ...movieData, imageUrl });
   } catch (error: unknown) {
     if (error instanceof ValidationError) {
       return {

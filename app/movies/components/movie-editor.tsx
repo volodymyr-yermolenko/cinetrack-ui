@@ -9,11 +9,14 @@ import { createMovieAction } from "../actions/create-movie-action";
 import { startTransition, useActionState, useEffect, useState } from "react";
 import { getCurrentYear } from "@/lib/utils/date-utils";
 import { LoaderCircle } from "lucide-react";
-import { FormField, FormFieldType } from "@/components/ui/form-field";
-import { ACCEPTED_IMAGE_TYPES } from "@/constants/images";
+import { FormField } from "@/components/ui/form-field";
+import { Movie } from "../types/movie";
+import { updateMovieAction } from "../actions/update-movie-action";
+import { ImageSelector } from "@/components/ui/image-selector";
 
 interface MovieEditorProps {
   genres: Genre[];
+  movie?: Movie;
 }
 
 interface FormState {
@@ -21,29 +24,37 @@ interface FormState {
   releaseYear: string;
   movieType: MovieType;
   genreIds: number[];
+  imageUrl: string | null;
+  image: File | null;
 }
 
-type FieldName = keyof FormState | "image";
+type FieldName = keyof FormState;
 
-export default function MovieEditor({ genres }: MovieEditorProps) {
+export default function MovieEditor({ genres, movie }: MovieEditorProps) {
+  const isEditMode = !!movie;
+
   const [formState, setFormState] = useState<FormState>({
-    title: "",
-    releaseYear: "",
-    movieType: MovieType.Movie,
-    genreIds: [],
+    title: isEditMode ? movie.title : "",
+    releaseYear: isEditMode ? movie.releaseYear.toString() : "",
+    movieType: isEditMode ? movie.movieType : MovieType.Movie,
+    genreIds: isEditMode ? movie.genres.map((genre) => genre.id) : [],
+    imageUrl: isEditMode ? movie.imageUrl : null,
+    image: null,
   });
-  const { title, releaseYear, movieType, genreIds } = formState;
+  const { title, releaseYear, movieType, genreIds, imageUrl, image } =
+    formState;
 
   const [changedFields, setChangedFields] = useState<Set<FieldName>>(
     new Set<FieldName>(),
   );
 
-  const [actionState, formAction, isPending] = useActionState(
-    createMovieAction,
-    {
-      success: false,
-    },
-  );
+  const action =
+    isEditMode && movie
+      ? updateMovieAction.bind(null, movie.id)
+      : createMovieAction;
+  const [actionState, formAction, isPending] = useActionState(action, {
+    success: false,
+  });
 
   const setChangedField = (fieldName: FieldName) => {
     setChangedFields((prev) => new Set(prev).add(fieldName));
@@ -88,17 +99,37 @@ export default function MovieEditor({ genres }: MovieEditorProps) {
     setChangedField("genreIds");
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setChangedField("image");
-  };
-
   const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    if (imageUrl) {
+      formData.append("imageUrl", imageUrl);
+    }
+    if (image) {
+      formData.append("image", image);
+    }
 
     startTransition(() => {
       formAction(formData);
     });
+  };
+
+  const handleImageSelect = (file: File) => {
+    setChangedField("image");
+    setFormState((prevState) => ({
+      ...prevState,
+      image: file,
+      imageUrl: null,
+    }));
+  };
+
+  const handleImageRemove = () => {
+    setChangedField("image");
+    setFormState((prevState) => ({
+      ...prevState,
+      image: null,
+      imageUrl: null,
+    }));
   };
 
   useEffect(() => {
@@ -107,7 +138,7 @@ export default function MovieEditor({ genres }: MovieEditorProps) {
     }
   }, [actionState]);
 
-  const currentYear = getCurrentYear();
+  const releaseYearPlaceHolder = (getCurrentYear() - 10).toString();
 
   return (
     <div className="w-[800px] mx-auto">
@@ -121,24 +152,28 @@ export default function MovieEditor({ genres }: MovieEditorProps) {
         </Link>
       </div>
       <div className="p-6 bg-white rounded-lg shadow">
-        <h1 className="text-2xl font-bold mb-4">Add New Movie</h1>
+        <h1 className="text-2xl font-bold mb-4">
+          {isEditMode ? "Edit Movie" : "Add New Movie"}
+        </h1>
         <form onSubmit={handleSubmit}>
           <div className="flex flex-col gap-3">
             <FormField
-              fieldType={FormFieldType.Text}
+              fieldType="text"
               label="Title"
               name="title"
               value={title}
+              required
               onChange={handleStringInputChange}
               error={titleError}
             />
             <FormField
-              fieldType={FormFieldType.Number}
+              fieldType="number"
               label="Release Year"
               name="releaseYear"
               value={releaseYear}
+              required
               onChange={handleStringInputChange}
-              placeHolder={currentYear.toString()}
+              placeHolder={releaseYearPlaceHolder}
               error={releaseYearError}
             />
             <div className="flex flex-col gap-1">
@@ -164,7 +199,7 @@ export default function MovieEditor({ genres }: MovieEditorProps) {
               <p className="text-red-500 text-sm mt-1">{movieTypeError}</p>
             )}
             <div className="flex flex-col gap-1">
-              <label className="font-semibold">Genres</label>
+              <label className="font-semibold">Genres *</label>
               <div className="grid grid-flow-col grid-rows-6 w-96 gap-x-1">
                 {genres.map((genre) => (
                   <div className="flex items-center gap-x-2" key={genre.id}>
@@ -185,21 +220,22 @@ export default function MovieEditor({ genres }: MovieEditorProps) {
               )}
             </div>
             <div className="flex flex-col gap-1">
-              <label htmlFor="image">Image</label>
-              <input
-                type="file"
-                accept={ACCEPTED_IMAGE_TYPES.join(", ")}
-                id="image"
-                name="image"
-                onChange={handleImageChange}
+              <label className="font-semibold" htmlFor="image">
+                Image
+              </label>
+              <ImageSelector
+                imageUrl={imageUrl || null}
+                onSelect={handleImageSelect}
+                onRemove={handleImageRemove}
               />
               {imageError && (
                 <p className="text-red-500 text-sm mt-1">{imageError}</p>
               )}
             </div>
           </div>
+          <hr className="border-gray-300 my-4"></hr>
           <button
-            className="btn-primary mt-6 transition-colors"
+            className="btn-primary transition-colors ml-auto"
             type="submit"
             disabled={isPending}
           >

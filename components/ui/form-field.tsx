@@ -1,7 +1,4 @@
-export enum FormFieldType {
-  Text = "text",
-  Number = "number",
-}
+type FormFieldType = "text" | "number";
 
 interface FormFieldProps {
   fieldType: FormFieldType;
@@ -9,6 +6,7 @@ interface FormFieldProps {
   name: string;
   value?: string;
   placeHolder?: string;
+  required?: boolean;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   error?: string;
 }
@@ -18,12 +16,13 @@ export function FormField(props: FormFieldProps) {
     <div>
       <label htmlFor={props.name} className="font-semibold">
         {props.label}
+        {props.required && <span> *</span>}
       </label>
       <input
-        type={props.fieldType === FormFieldType.Number ? "number" : "text"}
+        type={props.fieldType}
         id={props.name}
         name={props.name}
-        value={props.value || ""}
+        value={props.value ?? ""}
         placeholder={props.placeHolder}
         onChange={props.onChange}
         className="form-input"
