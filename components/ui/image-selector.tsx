@@ -1,6 +1,7 @@
 import {
   ACCEPTED_IMAGE_EXTENSIONS,
   ACCEPTED_IMAGE_TYPES,
+  MAX_IMAGE_SIZE,
   MAX_IMAGE_SIZE_MB,
 } from "@/constants/images";
 import Image from "next/image";
@@ -22,7 +23,8 @@ export function ImageSelector({
   const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(
     imageUrl,
   );
-  const [isInvalidFileType, setIsInvalidFileType] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showError, setShowError] = useState(false);
 
   const handleSelectButtonClick = () => {
     inputRef.current?.click();
@@ -30,23 +32,35 @@ export function ImageSelector({
 
   const handleRemoveButtonClick = () => {
     setPreviewImageUrl(null);
-    setIsInvalidFileType(false);
     onRemove();
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
-      if (ACCEPTED_IMAGE_TYPES.includes(file.type)) {
-        setIsInvalidFileType(false);
-        const url = URL.createObjectURL(file);
-        setPreviewImageUrl(url);
-      } else {
-        setIsInvalidFileType(true);
-        setPreviewImageUrl(null);
+      if (file.size > MAX_IMAGE_SIZE) {
+        displayError(
+          `File size exceeds the maximum of ${MAX_IMAGE_SIZE_MB}MB.`,
+        );
+        return;
       }
+      if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+        displayError("Invalid file type");
+        return;
+      }
+
+      const url = URL.createObjectURL(file);
+      setPreviewImageUrl(url);
       onSelect(file);
     }
+  };
+
+  const displayError = (message: string) => {
+    setErrorMessage(message);
+    setShowError(true);
+    setTimeout(() => {
+      setShowError(false);
+    }, 2000);
   };
 
   useEffect(() => {
@@ -67,39 +81,50 @@ export function ImageSelector({
           accept={ACCEPTED_IMAGE_TYPES.join(", ")}
           onChange={handleImageChange}
         />
-        {isInvalidFileType ? (
-          <span className="p-2 text-red-500 text-sm">Invalid file type</span>
-        ) : (
-          <Image
-            src={previewImageUrl || noImage}
-            alt="Selected Image"
-            fill
-            className="object-cover"
-          />
-        )}
+        <Image
+          src={previewImageUrl || noImage}
+          alt="Selected Image"
+          fill
+          className="object-cover"
+        />
       </div>
       <div className="flex-1 flex flex-col gap-2">
         <p className="text-gray-500 text-sm">
-          Allowed: {ACCEPTED_IMAGE_EXTENSIONS.join(", ")} (max{" "}
+          Allowed file types: {ACCEPTED_IMAGE_EXTENSIONS.join(", ")} (max{" "}
           {MAX_IMAGE_SIZE_MB}MB)
         </p>
-        <div className="w-[130px] flex flex-col gap-3">
-          <button
-            className="btn-secondary"
-            type="button"
-            onClick={handleSelectButtonClick}
-          >
-            Select Image
-          </button>
-          {(previewImageUrl || isInvalidFileType) && (
-            <button
-              type="button"
-              onClick={handleRemoveButtonClick}
-              className="btn-danger"
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-row gap-1">
+            <div>
+              <button
+                className="btn-secondary w-32"
+                type="button"
+                onClick={handleSelectButtonClick}
+              >
+                Select Image
+              </button>
+            </div>
+            <span
+              className={`p-2 text-red-500 text-sm ${
+                showError
+                  ? "opacity-100"
+                  : "transition-opacity duration-1000 opacity-0"
+              }`}
             >
-              Remove Image
-            </button>
-          )}
+              {errorMessage}
+            </span>
+          </div>
+          <div>
+            {previewImageUrl && (
+              <button
+                type="button"
+                onClick={handleRemoveButtonClick}
+                className="btn-danger w-32"
+              >
+                Remove Image
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>
