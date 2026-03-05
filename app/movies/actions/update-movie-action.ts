@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import z from "zod";
 import { ActionResult } from "@/types/action-result";
-import { ValidationError } from "@/lib/errors/validation-error";
+import { ApiError } from "@/lib/errors/api-error";
 import { formatZodFieldErrors } from "@/lib/utils/zod-utils";
 import { uploadImage } from "@/lib/cloudinary";
 import { updateMovie } from "../api/update-movie";
@@ -43,7 +43,7 @@ export async function updateMovieAction(
   try {
     await updateMovie(movieId, { ...movieData, imageUrl });
   } catch (error: unknown) {
-    if (error instanceof ValidationError) {
+    if (error instanceof ApiError) {
       return {
         success: false,
         formErrors: [error.message],

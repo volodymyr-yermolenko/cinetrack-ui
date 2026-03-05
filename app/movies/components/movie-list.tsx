@@ -44,7 +44,7 @@ export default function MovieList({ initialMovies, genreId }: MovieListProps) {
         ></SearchInput>
         <Link
           href="/movies/create"
-          className="btn-primary flex flex-row items-center gap-x-2"
+          className="btn btn-main btn-primary flex flex-row items-center gap-x-2"
         >
           <Plus className="w-5 h-5" />
           Add Movie

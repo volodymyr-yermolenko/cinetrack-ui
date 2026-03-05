@@ -1,24 +1,13 @@
 import { BASE_API_URL } from "@/constants/api";
-import { ValidationError } from "./errors/validation-error";
+import { ApiError } from "./errors/api-error";
 
 export const apiClient = {
   async get<T>(
     path: string,
     defaultErrorMessage: string = "Failed to fetch data",
   ): Promise<T> {
-    let data: unknown = null;
-
     const response = await fetch(`${BASE_API_URL}${path}`);
-
-    const contentType = response.headers.get("Content-Type");
-    if (contentType?.includes("application/json")) {
-      data = await response.json();
-    }
-    if (!response.ok) {
-      const errorMessage = (data as any)?.error || defaultErrorMessage;
-      throw new Error(errorMessage);
-    }
-
+    const data = await handleResponse(response, defaultErrorMessage);
     return data as T;
   },
 
@@ -27,8 +16,6 @@ export const apiClient = {
     body: any,
     defaultErrorMessage: string = "Failed to post data",
   ): Promise<T> {
-    let data: unknown = null;
-
     const response = await fetch(`${BASE_API_URL}${path}`, {
       method: "POST",
       headers: {
@@ -37,20 +24,7 @@ export const apiClient = {
       body: JSON.stringify(body),
     });
 
-    const contentType = response.headers.get("Content-Type");
-    if (contentType?.includes("application/json")) {
-      data = await response.json();
-    }
-
-    if (!response.ok) {
-      const errorMessage = (data as any)?.error || defaultErrorMessage;
-      const error =
-        response.status === 400
-          ? new ValidationError(errorMessage)
-          : new Error(errorMessage);
-      throw error;
-    }
-
+    const data = await handleResponse(response, defaultErrorMessage);
     return data as T;
   },
 
@@ -59,8 +33,6 @@ export const apiClient = {
     body: any,
     defaultErrorMessage: string = "Failed to update data",
   ): Promise<T> {
-    let data: unknown = null;
-
     const response = await fetch(`${BASE_API_URL}${path}`, {
       method: "PUT",
       headers: {
@@ -69,20 +41,42 @@ export const apiClient = {
       body: JSON.stringify(body),
     });
 
-    const contentType = response.headers.get("Content-Type");
-    if (contentType?.includes("application/json")) {
-      data = await response.json();
-    }
-
-    if (!response.ok) {
-      const errorMessage = (data as any)?.error || defaultErrorMessage;
-      const error =
-        response.status === 400
-          ? new ValidationError(errorMessage)
-          : new Error(errorMessage);
-      throw error;
-    }
-
+    const data = await handleResponse(response, defaultErrorMessage);
     return data as T;
   },
+
+  async delete(
+    path: string,
+    defaultErrorMessage: string = "Failed to delete data",
+  ): Promise<void> {
+    const response = await fetch(`${BASE_API_URL}${path}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    await handleResponse(response, defaultErrorMessage);
+  },
 };
+
+async function handleResponse(
+  response: Response,
+  defaultErrorMessage: string,
+): Promise<unknown> {
+  let data: unknown = null;
+  const contentType = response.headers.get("Content-Type");
+  if (contentType?.includes("application/json")) {
+    data = await response.json();
+  }
+
+  if (!response.ok) {
+    const errorMessage = (data as any)?.error || defaultErrorMessage;
+    const error =
+      response.status >= 400 && response.status < 500
+        ? new ApiError(errorMessage)
+        : new Error(errorMessage);
+    throw error;
+  }
+
+  return data;
+}

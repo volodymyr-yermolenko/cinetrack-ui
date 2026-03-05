@@ -38,17 +38,44 @@ input::file-selector-button {
   @apply bg-gray-200 py-1 px-4 rounded-lg cursor-pointer hover:bg-gray-300 transition-colors;
 }
 
+dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.2); /* A common dimming effect */
+  /* You can also use backdrop-filter for blur/brightness effects */
+  backdrop-filter: blur(
+    1px
+  ); /* Note: Browser support for backdrop-filter varies */
+}
+
 @layer components {
+  /* Button common styles */
+  .btn {
+    @apply py-2  px-4 rounded-lg transition-colors cursor-pointer whitespace-nowrap flex flex-row items-center justify-center disabled:bg-gray-400 disabled:cursor-auto;
+  }
+
+  /* Button sizes */
+  .btn-main {
+    @apply text-base;
+  }
+  .btn-small {
+    @apply text-sm;
+  }
+
+  /* Button types */
   .btn-primary {
-    @apply bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors cursor-pointer whitespace-nowrap 
-      disabled:bg-gray-400 disabled:cursor-auto;
+    @apply bg-blue-600 hover:bg-blue-700 text-white;
   }
-
   .btn-secondary {
-    @apply bg-gray-100 hover:bg-gray-200 text-sm py-2 px-4 rounded-lg transition-colors cursor-pointer flex flex-row flex-1 items-center justify-center;
+    @apply bg-gray-100 hover:bg-gray-200;
+  }
+  .btn-alert {
+    @apply bg-red-50 hover:bg-red-100 text-red-600;
+  }
+  .btn-danger {
+    @apply bg-red-600 hover:bg-red-700 text-white;
   }
 
-  .btn-danger {
-    @apply bg-red-50 hover:bg-red-100 text-red-600 text-sm py-2 px-4 rounded-lg transition-colors cursor-pointer flex flex-row flex-1 items-center justify-center;
+  /* Icon button */
+  .icon-btn {
+    @apply flex items-center justify-center hover:bg-gray-200 rounded-lg transition-colors cursor-pointer;
   }
 }

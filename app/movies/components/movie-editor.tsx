@@ -235,7 +235,7 @@ export default function MovieEditor({ genres, movie }: MovieEditorProps) {
           </div>
           <hr className="border-gray-300 my-4"></hr>
           <button
-            className="btn-primary transition-colors ml-auto"
+            className="btn btn-main btn-primary"
             type="submit"
             disabled={isPending}
           >

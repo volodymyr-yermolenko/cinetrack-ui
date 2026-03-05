@@ -97,7 +97,7 @@ export function ImageSelector({
           <div className="flex flex-row gap-1">
             <div>
               <button
-                className="btn-secondary w-32"
+                className="btn btn-small btn-secondary w-32"
                 type="button"
                 onClick={handleSelectButtonClick}
               >
@@ -119,7 +119,7 @@ export function ImageSelector({
               <button
                 type="button"
                 onClick={handleRemoveButtonClick}
-                className="btn-danger w-32"
+                className="btn btn-small btn-alert w-32"
               >
                 Remove Image
               </button>
