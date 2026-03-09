@@ -19,7 +19,7 @@ export default function Header() {
             <NavLink href="/movies">Movies</NavLink>
           </li>
           <li>
-            <NavLink href="/watches">Watches</NavLink>
+            <NavLink href="/watch-entries">Watches</NavLink>
           </li>
           <li>
             <NavLink href="/signin">Sign in</NavLink>
