@@ -15,8 +15,8 @@ export async function getMovies(
     params.append("search", search);
   }
 
-  return apiClient.get<Movie[]>(
-    `/movies?${params.toString()} `,
-    "Failed to fetch movies",
-  );
+  const query = params.toString();
+  const url = query ? `/movies?${query}` : "/movies";
+
+  return apiClient.get<Movie[]>(url, "Failed to fetch movies");
 }

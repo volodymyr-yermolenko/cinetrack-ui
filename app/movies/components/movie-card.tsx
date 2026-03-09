@@ -9,13 +9,14 @@ import noImage from "@/public/no-image.jpg";
 import { startTransition, useActionState, useEffect, useState } from "react";
 import ConfirmDialog from "@/components/ui/confirm-dialog";
 import { deleteMovieAction } from "../actions/delete-movie-action";
+import { getGenreList } from "@/lib/utils/movie-utils";
 
 interface MovieCardProps {
   movie: Movie;
 }
 
 export default function MovieCard({ movie }: MovieCardProps) {
-  const genres = movie.genres.map((g) => g.name).join(", ");
+  const genres = getGenreList(movie.genres);
   const movieType = MOVIE_TYPE_MAP[movie.movieType];
   const imageScr = movie.imageUrl || noImage;
 
@@ -52,10 +53,7 @@ export default function MovieCard({ movie }: MovieCardProps) {
 
   return (
     <>
-      <div
-        key={movie.id}
-        className="size-[400] bg-white rounded-lg shadow-sm hover:shadow-md overflow-hidden transition-shadow flex flex-col"
-      >
+      <div className="size-[400] bg-white rounded-lg shadow-sm hover:shadow-md overflow-hidden transition-shadow flex flex-col">
         <div className="relative w-full h-[250px]">
           <Image
             src={imageScr}

@@ -49,7 +49,10 @@ dialog::backdrop {
 @layer components {
   /* Button common styles */
   .btn {
-    @apply py-2  px-4 rounded-lg transition-colors cursor-pointer whitespace-nowrap flex flex-row items-center justify-center disabled:bg-gray-400 disabled:cursor-auto;
+    @apply py-2 px-4 rounded-lg transition-colors cursor-pointer whitespace-nowrap flex flex-row items-center justify-center disabled:bg-gray-400 disabled:cursor-auto;
+  }
+  .btn-icon {
+    @apply p-2 rounded-lg transition-colors cursor-pointer flex flex-row items-center justify-center  disabled:bg-gray-400 disabled:cursor-auto;
   }
 
   /* Button sizes */
@@ -60,7 +63,7 @@ dialog::backdrop {
     @apply text-sm;
   }
 
-  /* Button types */
+  /* Button colors */
   .btn-primary {
     @apply bg-blue-600 hover:bg-blue-700 text-white;
   }
