@@ -1,6 +1,7 @@
 # CineTrack UI
 
 A pet project for learning Next.js and React.
+
 [https://cinetrack-ui.vercel.app/movies](https://cinetrack-ui.vercel.app/movies)
 
 ## 🎬 Overview
