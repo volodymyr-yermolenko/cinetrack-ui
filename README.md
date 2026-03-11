@@ -1,10 +1,10 @@
 # CineTrack UI
 
-A pet project for learning Next.js and React (movie tracking application).
+A pet project for learning Next.js and React.
 
 ## 🎬 Overview
 
-CineTrack UI is the frontend application that enables users to discover, track, and manage their movie watching experience. Built with cutting-edge web technologies, it provides a seamless and intuitive interface for movie enthusiasts.
+CineTrack is the frontend application that enables users to discover, track, and manage their movie watching experience. 
 
 ## 🚀 Tech Stack
 
@@ -18,7 +18,7 @@ CineTrack UI is the frontend application that enables users to discover, track, 
 ## 📋 Prerequisites
 
 - Node.js (recommended: v20 or higher)
-- npm or yarn package manager
+- npm package manager
 
 ## 🛠️ Installation
 
@@ -67,6 +67,6 @@ npm start
 
 ## 🌐 Live Demo
 
-Check out the live version: [https://cinetrack-ui.vercel.app/movies](https://cinetrack-ui.vercel.app/movies)
+[https://cinetrack-ui.vercel.app/movies](https://cinetrack-ui.vercel.app/movies)
 
 
