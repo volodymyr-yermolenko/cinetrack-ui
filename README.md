@@ -1,36 +1,72 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CineTrack UI
 
-## Getting Started
+A pet project for learning Next.js and React (movie tracking application).
 
-First, run the development server:
+## 🎬 Overview
 
+CineTrack UI is the frontend application that enables users to discover, track, and manage their movie watching experience. Built with cutting-edge web technologies, it provides a seamless and intuitive interface for movie enthusiasts.
+
+## 🚀 Tech Stack
+
+- **Framework**: [Next.js](https://nextjs.org/) 16.1
+- **Language**: TypeScript
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/) 4
+- **UI Components**: [Lucide React](https://lucide.dev/) for icons
+- **Image Management**: [Cloudinary](https://cloudinary.com/)
+- **Validation**: [Zod](https://zod.dev/)
+
+## 📋 Prerequisites
+
+- Node.js (recommended: v20 or higher)
+- npm or yarn package manager
+
+## 🛠️ Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/volodymyr-yermolenko/cinetrack-ui.git
+   cd cinetrack-ui
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+## 🎯 Getting Started
+
+### Development Server
+
+Start the development server:
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The application will be available at `http://localhost:3000`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Production Build
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Build the application for production:
+```bash
+npm run build
+```
 
-## Learn More
+Start the production server:
+```bash
+npm start
+```
 
-To learn more about Next.js, take a look at the following resources:
+## 📁 Project Structure
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `/app` - Next.js app router and page components
+- `/components` - Reusable React components
+- `/constants` - Application constants and configuration
+- `/lib` - Utility functions and helpers
+- `/types` - TypeScript type definitions
+- `/public` - Static assets
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🌐 Live Demo
 
-## Deploy on Vercel
+Check out the live version: [https://cinetrack-ui.vercel.app/movies](https://cinetrack-ui.vercel.app/movies)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
