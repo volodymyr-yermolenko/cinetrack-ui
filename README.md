@@ -1,6 +1,7 @@
 # CineTrack UI
 
 A pet project for learning Next.js and React.
+[https://cinetrack-ui.vercel.app/movies](https://cinetrack-ui.vercel.app/movies)
 
 ## 🎬 Overview
 
@@ -65,8 +66,7 @@ npm start
 - `/types` - TypeScript type definitions
 - `/public` - Static assets
 
-## 🌐 Live Demo
 
-[https://cinetrack-ui.vercel.app/movies](https://cinetrack-ui.vercel.app/movies)
+
 
 
