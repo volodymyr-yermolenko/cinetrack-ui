@@ -13,7 +13,7 @@ interface FormFieldProps {
 
 export function FormField(props: FormFieldProps) {
   return (
-    <div>
+    <div className="flex flex-col gap-1">
       <label htmlFor={props.name} className="font-semibold">
         {props.label}
         {props.required && <span> *</span>}
@@ -25,7 +25,7 @@ export function FormField(props: FormFieldProps) {
         value={props.value ?? ""}
         placeholder={props.placeHolder}
         onChange={props.onChange}
-        className="form-input"
+        className="form-input w-full"
       />
       {props.error && (
         <p className="text-red-500 text-sm mt-1">{props.error}</p>

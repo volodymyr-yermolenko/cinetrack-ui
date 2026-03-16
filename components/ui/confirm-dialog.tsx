@@ -52,7 +52,7 @@ export default function ConfirmDialog(props: ConfirmDialogProps) {
         <div className="flex flex-row justify-between">
           <h3 className="text-xl font-bold">{props.header}</h3>
           <button
-            className="icon-btn w-6 p-1"
+            className="btn-icon-mini btn-ghost focus:outline-none"
             onClick={handleCancelClick}
             disabled={props.isPending}
           >

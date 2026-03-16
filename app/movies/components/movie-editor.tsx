@@ -185,7 +185,7 @@ export default function MovieEditor({ genres, movie }: MovieEditorProps) {
                 id="movieType"
                 value={movieType}
                 onChange={handleMovieTypeChange}
-                className="form-input"
+                className="form-input w-full"
               >
                 <option value={MovieType.Movie}>
                   {MOVIE_TYPE_MAP[MovieType.Movie]}
