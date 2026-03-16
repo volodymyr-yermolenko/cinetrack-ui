@@ -22,9 +22,9 @@ export async function GetWatchEntries(
     url,
     "Failed to fetch watch entries",
   );
-
+  console.log("Fetched watch entries:", response);
   return response.map((entry) => ({
     ...entry,
-    watchedAt: new Date(entry.watchedAt),
+    watchedDate: new Date(entry.watchedDate),
   }));
 }

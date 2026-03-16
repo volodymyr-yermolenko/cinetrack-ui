@@ -7,6 +7,7 @@ import { getMovies } from "../api/get-movies";
 import SearchInput from "@/components/common/search-input";
 import { Plus } from "lucide-react";
 import Link from "next/link";
+import NoItemsPanel from "@/components/common/no-items-panel";
 
 interface MovieListProps {
   initialMovies: Movie[];
@@ -50,11 +51,15 @@ export default function MovieList({ initialMovies, genreId }: MovieListProps) {
           Add Movie
         </Link>
       </div>
-      <div className="flex flex-wrap gap-6">
-        {movies.map((movie) => (
-          <MovieCard key={movie.id} movie={movie} />
-        ))}
-      </div>
+      {movies.length === 0 ? (
+        <NoItemsPanel />
+      ) : (
+        <div className="flex flex-wrap gap-6">
+          {movies.map((movie) => (
+            <MovieCard key={movie.id} movie={movie} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
