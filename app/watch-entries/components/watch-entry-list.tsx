@@ -5,59 +5,59 @@ import { WatchEntry } from "../types/watch-entry";
 import WatchEntryCard from "./watch-entry-card";
 import Link from "next/link";
 import { Plus } from "lucide-react";
-import { useCallback, useState } from "react";
-import { GetWatchEntries } from "../api/get-watch-entries";
+import { useCallback } from "react";
 import { Genre } from "@/app/movies/types/genre";
 import NoItemsPanel from "@/components/common/no-items-panel";
+import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 interface WatchEntryListProps {
-  initialWatchEntries: WatchEntry[];
+  watchEntries: WatchEntry[];
   genres: Genre[];
 }
 
 export default function WatchEntryList({
-  initialWatchEntries,
+  watchEntries,
   genres,
 }: WatchEntryListProps) {
-  const [watchEntries, setWatchEntries] =
-    useState<WatchEntry[]>(initialWatchEntries);
-  const [searchValue, setSearchValue] = useState("");
-  const [genreId, setGenreId] = useState<number | null>(null);
-  // TODO: Use isLoading to show skeletons instead of spinner, because spinner looks bad when the loading takes less than a second
-  const [isLoading, setIsLoading] = useState(false);
+  const searchParams = useSearchParams();
+  const searchValue = searchParams.get("search") ?? "";
+  const genreIdString = searchParams.get("genreId");
+  const genreId = genreIdString ? Number(genreIdString) : null;
 
-  const handleFilterChange = async (
-    searchValue: string,
-    genreId: number | null,
-  ) => {
-    if (!searchValue.trim() && !genreId) {
-      setWatchEntries(initialWatchEntries);
-      return;
-    }
-    setIsLoading(true);
-    try {
-      const watchEntries = await GetWatchEntries(
-        genreId || undefined,
-        searchValue,
-      );
-      setWatchEntries(watchEntries);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const router = useRouter();
+  const pathName = usePathname();
 
-  const handleSearchChange = useCallback(
-    async (searchValue: string) => {
-      setSearchValue(searchValue);
-      await handleFilterChange(searchValue, genreId);
+  const handleFilterChange = useCallback(
+    (searchValue: string, genreId: number | null) => {
+      const params = new URLSearchParams();
+      if (genreId) {
+        params.set("genreId", genreId.toString());
+      } else {
+        params.delete("genreId");
+      }
+
+      const trimmedSearch = searchValue.trim();
+      if (trimmedSearch) {
+        params.set("search", trimmedSearch);
+      } else {
+        params.delete("search");
+      }
+      router.replace(`${pathName}?${params.toString()}`, { scroll: false });
     },
-    [genreId],
+    [router, pathName],
   );
 
-  const handleGenreChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleSearchChange = useCallback(
+    (searchValue: string) => {
+      handleFilterChange(searchValue, genreId);
+    },
+    [handleFilterChange, genreId],
+  );
+
+  const handleGenreChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const genreId = e.target.value ? Number(e.target.value) : null;
-    setGenreId(genreId);
-    await handleFilterChange(searchValue, genreId);
+    handleFilterChange(searchValue, genreId);
   };
 
   return (
@@ -65,6 +65,7 @@ export default function WatchEntryList({
       <div className="flex flex-row p-4 bg-white rounded-lg shadow gap-x-4">
         <SearchInput
           placeholder="Search movies..."
+          initialValue={searchValue}
           onSearch={handleSearchChange}
         ></SearchInput>
         <select

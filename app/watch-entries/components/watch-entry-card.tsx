@@ -57,7 +57,6 @@ export default function WatchEntryCard({ watchEntry }: WatchEntryCardProps) {
     startTransition(() => {
       deleteAction();
     });
-    router.refresh();
   };
 
   const handleCancelDelete = () => {

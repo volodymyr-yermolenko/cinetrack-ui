@@ -1,30 +1,36 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDebounce } from "../../lib/hooks/use-debounce";
 import { Search } from "lucide-react";
 
 interface SearchProps {
   placeholder: string;
   debounceDelay?: number;
+  initialValue?: string;
   onSearch: (query: string) => void;
 }
 
 export default function SearchInput({
   placeholder,
   debounceDelay = 500,
+  initialValue,
   onSearch,
 }: SearchProps) {
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(initialValue ?? "");
   const debouncedSearch = useDebounce(search, debounceDelay);
+  const isFirstRender = useRef(true);
 
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
     onSearch(debouncedSearch);
   }, [debouncedSearch, onSearch]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const searchValue = e.target.value;
-    setSearch(searchValue);
+    setSearch(e.target.value);
   };
 
   return (

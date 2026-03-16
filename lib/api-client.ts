@@ -5,8 +5,13 @@ export const apiClient = {
   async get<T>(
     path: string,
     defaultErrorMessage: string = "Failed to fetch data",
+    withCache = false,
   ): Promise<T> {
-    const response = await fetch(`${BASE_API_URL}${path}`);
+    const options = withCache
+      ? { next: { revalidate: 3600 } }
+      : { cache: "no-store" as const };
+
+    const response = await fetch(`${BASE_API_URL}${path}`, options);
     const data = await handleResponse(response, defaultErrorMessage);
     return data as T;
   },
