@@ -3,7 +3,7 @@
 import { apiClient } from "@/lib/api-client";
 import { WatchEntry } from "../types/watch-entry";
 
-export async function GetWatchEntries(
+export async function getWatchEntries(
   genreId?: number,
   search?: string,
 ): Promise<WatchEntry[]> {
@@ -22,7 +22,6 @@ export async function GetWatchEntries(
     url,
     "Failed to fetch watch entries",
   );
-  console.log("Fetched watch entries:", response);
   return response.map((entry) => ({
     ...entry,
     watchedDate: new Date(entry.watchedDate),
