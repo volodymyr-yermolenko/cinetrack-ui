@@ -1,10 +1,10 @@
 import { Movie } from "@/app/movies/types/movie";
-import { ViewingContextType } from "./viewing-context-type";
+import { ViewingContext } from "./viewing-context";
 
 export interface WatchEntry {
   id: number;
   rating: number;
-  viewingContext: ViewingContextType;
+  viewingContext: ViewingContext;
   watchedDate: Date;
   review?: string;
   movie: Movie;

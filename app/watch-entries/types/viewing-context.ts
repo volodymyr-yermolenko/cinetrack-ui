@@ -1,4 +1,4 @@
-export enum ViewingContextType {
+export enum ViewingContext {
   Alone = 1,
   WithPartner = 2,
   WithFriends = 3,

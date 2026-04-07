@@ -20,7 +20,6 @@ export async function deleteWatchEntryAction(
     }
     throw error;
   }
-  console.log("Revalidating path...");
   revalidatePath("/watch-entries");
 
   return { success: true };

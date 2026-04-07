@@ -9,14 +9,14 @@ import noImage from "@/public/no-image.jpg";
 import { startTransition, useActionState, useEffect, useState } from "react";
 import ConfirmDialog from "@/components/ui/confirm-dialog";
 import { deleteMovieAction } from "../actions/delete-movie-action";
-import { getGenreList } from "@/lib/utils/movie-utils";
+import { formatGenreNames } from "@/lib/utils/movie-utils";
 
 interface MovieCardProps {
   movie: Movie;
 }
 
 export default function MovieCard({ movie }: MovieCardProps) {
-  const genres = getGenreList(movie.genres);
+  const genres = formatGenreNames(movie.genres);
   const movieType = MOVIE_TYPE_MAP[movie.movieType];
   const imageScr = movie.imageUrl || noImage;
 

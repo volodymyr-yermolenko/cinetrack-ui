@@ -2,6 +2,11 @@ export function getCurrentYear(): number {
   return new Date().getFullYear();
 }
 
+export function getCurrentDate(): Date {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+}
+
 export function formatDateTime(
   date: Date,
   withoutTime: boolean = false,
