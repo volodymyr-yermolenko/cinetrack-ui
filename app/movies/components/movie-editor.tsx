@@ -12,8 +12,9 @@ import { FormField } from "@/components/ui/form-field";
 import { Movie } from "../types/movie";
 import { updateMovieAction } from "../actions/update-movie-action";
 import { ImageSelector } from "@/components/ui/image-selector";
-import Select from "react-select";
-import { useMovieTypeSelect } from "../hooks/useMovieTypeSelect";
+import Select from "@/components/ui/select";
+import { mapToNumericSelectOptions } from "@/lib/utils/sys-utils";
+import { MOVIE_TYPE_MAP } from "@/constants/movies";
 
 interface MovieEditorProps {
   genres: Genre[];
@@ -49,16 +50,14 @@ export default function MovieEditor({ genres, movie }: MovieEditorProps) {
     new Set<FieldName>(),
   );
 
+  const movieTypeOptions = mapToNumericSelectOptions<MovieType>(MOVIE_TYPE_MAP);
+
   const action =
     isEditMode && movie
       ? updateMovieAction.bind(null, movie.id)
       : createMovieAction;
   const [actionState, formAction, isPending] = useActionState(action, {
     success: false,
-  });
-
-  const movieTypeSelect = useMovieTypeSelect(movieType, (newMovieType) => {
-    setFormState((prevState) => ({ ...prevState, movieType: newMovieType }));
   });
 
   const setChangedField = (fieldName: FieldName) => {
@@ -95,6 +94,11 @@ export default function MovieEditor({ genres, movie }: MovieEditorProps) {
         : prevState.genreIds.filter((id) => id !== value),
     }));
     setChangedField("genreIds");
+  };
+
+  const handleMovieTypeChange = (movieType: MovieType | null) => {
+    if (!movieType) return;
+    setFormState((prevState) => ({ ...prevState, movieType }));
   };
 
   const handleImageSelect = (file: File) => {
@@ -177,12 +181,11 @@ export default function MovieEditor({ genres, movie }: MovieEditorProps) {
                 Movie Type
               </label>
               <Select
-                instanceId="movieType"
                 id="movieType"
                 name="movieType"
-                value={movieTypeSelect.selectedMovieTypeOption}
-                onChange={movieTypeSelect.handleMovieTypeChange}
-                options={movieTypeSelect.movieTypeOptions}
+                value={movieType}
+                onChange={handleMovieTypeChange}
+                options={movieTypeOptions}
               ></Select>
             </div>
             {movieTypeError && (

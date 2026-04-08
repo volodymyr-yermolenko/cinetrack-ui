@@ -4,7 +4,7 @@ import { Movie } from "@/app/movies/types/movie";
 import { FormField } from "@/components/ui/form-field";
 import { ArrowLeft, LoaderCircle } from "lucide-react";
 import Link from "next/link";
-import { startTransition, useActionState, useState } from "react";
+import { startTransition, useActionState, useMemo, useState } from "react";
 import { createWatchEntryAction } from "../actions/create-watch-entry-action";
 import { ViewingContext } from "../types/viewing-context";
 import noImage from "@/public/no-image.jpg";
@@ -13,8 +13,7 @@ import { formatGenreNames } from "@/lib/utils/movie-utils";
 import { MOVIE_TYPE_MAP } from "@/constants/movies";
 import { DatePicker } from "react-datepicker";
 import { getCurrentDate } from "@/lib/utils/date-utils";
-import Select, { SingleValue } from "react-select";
-import { SelectOption } from "@/lib/utils/sys-utils";
+import Select from "@/components/ui/select";
 
 interface WatchEntryEditorProps {
   movies: Movie[];
@@ -41,6 +40,15 @@ export default function WatchEntryEditor({ movies }: WatchEntryEditorProps) {
   const genres = movie ? formatGenreNames(movie.genres) : "";
   const movieType = movie ? MOVIE_TYPE_MAP[movie.movieType] : "";
 
+  const movieOptions = useMemo(
+    () =>
+      movies.map((movie) => ({
+        value: movie.id,
+        label: movie.title,
+      })),
+    [movies],
+  );
+
   const [actionState, formAction, isPending] = useActionState(
     createWatchEntryAction,
     { success: false },
@@ -48,20 +56,9 @@ export default function WatchEntryEditor({ movies }: WatchEntryEditorProps) {
 
   const formErrors = actionState.formErrors;
 
-  const movieOptions: SelectOption<number>[] = movies.map((movie) => ({
-    value: movie.id,
-    label: movie.title,
-  }));
-  const selectedMovieOption =
-    movieOptions.find((option) => option.value === movie?.id) || null;
-
-  const handleMovieChange = (
-    selectedOption: SingleValue<SelectOption<number>>,
-  ) => {
-    setFormState((prevState) => ({
-      ...prevState,
-      movie: movies.find((m) => m.id === selectedOption?.value) || null,
-    }));
+  const handleMovieChange = (movieId: number | null) => {
+    const selectedMovie = movies.find((m) => m.id === movieId) || null;
+    setFormState((prevState) => ({ ...prevState, movie: selectedMovie }));
   };
 
   const handleStringInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -102,10 +99,9 @@ export default function WatchEntryEditor({ movies }: WatchEntryEditorProps) {
                 Movie
               </label>
               <Select
-                instanceId="movieId"
                 id="movieId"
                 name="movieId"
-                value={selectedMovieOption}
+                value={movie?.id ?? null}
                 onChange={handleMovieChange}
                 options={movieOptions}
               ></Select>
@@ -121,7 +117,7 @@ export default function WatchEntryEditor({ movies }: WatchEntryEditorProps) {
               </div>
               {movie && (
                 <div>
-                  <div className="font-medium">{movie?.title}</div>
+                  <div className="font-semibold">{movie?.title}</div>
                   <div className="text-sm text-gray-600">
                     <span>{movie.releaseYear}</span>
                     <span> • </span>
