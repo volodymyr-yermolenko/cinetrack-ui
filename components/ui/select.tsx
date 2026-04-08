@@ -1,5 +1,5 @@
+import { SelectOption } from "@/types/select-option";
 import ReactSelect, { CSSObjectWithLabel, StylesConfig } from "react-select";
-import { SelectOption } from "@/lib/utils/sys-utils";
 
 interface SelectProps<T extends number | string> {
   id: string;
