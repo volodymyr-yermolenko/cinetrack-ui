@@ -4,7 +4,6 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Genre } from "../types/genre";
 import { MovieType } from "../types/movie-type";
-import { MOVIE_TYPE_MAP } from "@/constants/movies";
 import { createMovieAction } from "../actions/create-movie-action";
 import { startTransition, useActionState, useEffect, useState } from "react";
 import { getCurrentYear } from "@/lib/utils/date-utils";
@@ -13,6 +12,9 @@ import { FormField } from "@/components/ui/form-field";
 import { Movie } from "../types/movie";
 import { updateMovieAction } from "../actions/update-movie-action";
 import { ImageSelector } from "@/components/ui/image-selector";
+import Select from "@/components/ui/select";
+import { mapToNumericSelectOptions } from "@/lib/utils/sys-utils";
+import { MOVIE_TYPE_MAP } from "@/constants/movies";
 
 interface MovieEditorProps {
   genres: Genre[];
@@ -48,6 +50,8 @@ export default function MovieEditor({ genres, movie }: MovieEditorProps) {
     new Set<FieldName>(),
   );
 
+  const movieTypeOptions = mapToNumericSelectOptions<MovieType>(MOVIE_TYPE_MAP);
+
   const action =
     isEditMode && movie
       ? updateMovieAction.bind(null, movie.id)
@@ -72,20 +76,13 @@ export default function MovieEditor({ genres, movie }: MovieEditorProps) {
   const genresError = getFieldError("genreIds");
   const imageError = getFieldError("image");
   const formErrors = actionState.formErrors;
+  const releaseYearPlaceHolder = (getCurrentYear() - 10).toString();
 
   const handleStringInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const name = e.target.name as keyof FormState;
     const value = e.target.value;
     setFormState((prevState) => ({ ...prevState, [name]: value }));
     setChangedField(name as FieldName);
-  };
-
-  const handleMovieTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setFormState((prevState) => ({
-      ...prevState,
-      movieType: Number(e.target.value) as MovieType,
-    }));
-    setChangedField("movieType");
   };
 
   const handleGenresChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -99,19 +96,9 @@ export default function MovieEditor({ genres, movie }: MovieEditorProps) {
     setChangedField("genreIds");
   };
 
-  const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    if (imageUrl) {
-      formData.append("imageUrl", imageUrl);
-    }
-    if (image) {
-      formData.append("image", image);
-    }
-
-    startTransition(() => {
-      formAction(formData);
-    });
+  const handleMovieTypeChange = (movieType: MovieType | null) => {
+    if (!movieType) return;
+    setFormState((prevState) => ({ ...prevState, movieType }));
   };
 
   const handleImageSelect = (file: File) => {
@@ -132,13 +119,26 @@ export default function MovieEditor({ genres, movie }: MovieEditorProps) {
     }));
   };
 
+  const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    if (imageUrl) {
+      formData.append("imageUrl", imageUrl);
+    }
+    if (image) {
+      formData.append("image", image);
+    }
+
+    startTransition(() => {
+      formAction(formData);
+    });
+  };
+
   useEffect(() => {
     if (!actionState.success && actionState.fieldErrors) {
       setChangedFields(new Set());
     }
   }, [actionState]);
-
-  const releaseYearPlaceHolder = (getCurrentYear() - 10).toString();
 
   return (
     <div className="w-[800px] mx-auto">
@@ -180,20 +180,13 @@ export default function MovieEditor({ genres, movie }: MovieEditorProps) {
               <label htmlFor="movieType" className="font-semibold">
                 Movie Type
               </label>
-              <select
-                name="movieType"
+              <Select
                 id="movieType"
+                name="movieType"
                 value={movieType}
                 onChange={handleMovieTypeChange}
-                className="form-input w-full"
-              >
-                <option value={MovieType.Movie}>
-                  {MOVIE_TYPE_MAP[MovieType.Movie]}
-                </option>
-                <option value={MovieType.Series}>
-                  {MOVIE_TYPE_MAP[MovieType.Series]}
-                </option>
-              </select>
+                options={movieTypeOptions}
+              ></Select>
             </div>
             {movieTypeError && (
               <p className="text-red-500 text-sm mt-1">{movieTypeError}</p>

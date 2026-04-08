@@ -10,6 +10,8 @@ import { Genre } from "@/app/movies/types/genre";
 import NoItemsPanel from "@/components/common/no-items-panel";
 import { useRouter, useSearchParams } from "next/navigation";
 import { usePathname } from "next/navigation";
+import { SelectOption } from "@/lib/utils/sys-utils";
+import Select from "@/components/ui/select";
 
 interface WatchEntryListProps {
   watchEntries: WatchEntry[];
@@ -20,10 +22,17 @@ export default function WatchEntryList({
   watchEntries,
   genres,
 }: WatchEntryListProps) {
+  const allGenreId = 0;
+
   const searchParams = useSearchParams();
   const searchValue = searchParams.get("search") ?? "";
   const genreIdString = searchParams.get("genreId");
-  const genreId = genreIdString ? Number(genreIdString) : null;
+  const genreId = genreIdString ? Number(genreIdString) : allGenreId;
+
+  const genreOptions: SelectOption<number>[] = [
+    { value: allGenreId, label: "All" },
+    ...genres.map((genre) => ({ value: genre.id, label: genre.name })),
+  ];
 
   const router = useRouter();
   const pathName = usePathname();
@@ -55,9 +64,8 @@ export default function WatchEntryList({
     [handleFilterChange, genreId],
   );
 
-  const handleGenreChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const genreId = e.target.value ? Number(e.target.value) : null;
-    handleFilterChange(searchValue, genreId);
+  const handleGenreChange = (selectedValue: number | null) => {
+    handleFilterChange(searchValue, selectedValue);
   };
 
   return (
@@ -68,21 +76,14 @@ export default function WatchEntryList({
           initialValue={searchValue}
           onSearch={handleSearchChange}
         ></SearchInput>
-        <select
-          name="genre"
+        <Select
           id="genre"
-          value={genreId ?? ""}
+          name="genre"
+          className="w-64"
+          value={genreId}
           onChange={handleGenreChange}
-          className="form-input w-64"
-        >
-          <option value="">All</option>
-          {genres.map((genre) => (
-            <option value={genre.id} key={genre.id}>
-              {genre.name}
-            </option>
-          ))}
-        </select>
-
+          options={genreOptions}
+        />
         <Link
           href="/watch-entries/create"
           className="btn btn-main btn-primary flex flex-row items-center gap-x-2"

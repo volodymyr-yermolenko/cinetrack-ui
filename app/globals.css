@@ -79,3 +79,16 @@ dialog::backdrop {
     @apply hover:bg-gray-300;
   }
 }
+
+.react-datepicker__input-container {
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+.react-datepicker__view-calendar-icon input {
+  padding: 6px 10px 5px 12px;
+}
+
+.react-datepicker__triangle {
+  display: none;
+}

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { WatchEntry } from "../types/watch-entry";
 import noImage from "@/public/no-image.jpg";
-import { getGenreList } from "@/lib/utils/movie-utils";
+import { formatGenreNames } from "@/lib/utils/movie-utils";
 import {
   Calendar,
   MessageCircleMore,
@@ -26,7 +26,7 @@ interface WatchEntryCardProps {
 
 export default function WatchEntryCard({ watchEntry }: WatchEntryCardProps) {
   const imageScr = watchEntry.movie.imageUrl || noImage;
-  const genreList = getGenreList(watchEntry.movie.genres);
+  const genreList = formatGenreNames(watchEntry.movie.genres);
 
   const router = useRouter();
 
