@@ -89,7 +89,7 @@ export default function WatchEntryCard({ watchEntry }: WatchEntryCardProps) {
             <div className="flex items-center gap-2">
               <Star className="h-4 w-4 text-gray-400" />
               <span>Rating:</span>
-              <Rating value={watchEntry.rating} />
+              <Rating value={watchEntry.rating} starSize="small" />
             </div>
             <div className="flex items-start gap-2">
               <MessageCircleMore className="h-4 w-4 text-gray-400" />

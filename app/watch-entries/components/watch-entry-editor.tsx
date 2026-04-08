@@ -14,6 +14,7 @@ import { MOVIE_TYPE_MAP } from "@/constants/movies";
 import { DatePicker } from "react-datepicker";
 import { getCurrentDate } from "@/lib/utils/date-utils";
 import Select from "@/components/ui/select";
+import { Rating } from "@/components/ui/rating";
 
 interface WatchEntryEditorProps {
   movies: Movie[];
@@ -69,6 +70,10 @@ export default function WatchEntryEditor({ movies }: WatchEntryEditorProps) {
 
   const handleWatchedDateChange = (date: Date | null) => {
     setFormState((prevState) => ({ ...prevState, watchedDate: date }));
+  };
+
+  const handleRatingChange = (rating: number) => {
+    setFormState((prevState) => ({ ...prevState, rating }));
   };
 
   const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
@@ -144,6 +149,16 @@ export default function WatchEntryEditor({ movies }: WatchEntryEditorProps) {
                 className="form-input w-full"
               />
             </div>
+            <div className="flex flex-col gap-1">
+              <label className="font-semibold">Rating</label>
+              <Rating
+                value={rating}
+                starSize="large"
+                isEditable={true}
+                onChange={handleRatingChange}
+              />
+            </div>
+
             <FormField
               fieldType="text"
               label="Review"

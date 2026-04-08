@@ -1,7 +1,4 @@
-export type SelectOption<T> = {
-  value: T;
-  label: string;
-};
+import { SelectOption } from "@/types/select-option";
 
 export function mapToNumericSelectOptions<T extends number>(
   map: Record<T, string>,

@@ -10,7 +10,7 @@ import { Genre } from "@/app/movies/types/genre";
 import NoItemsPanel from "@/components/common/no-items-panel";
 import { useRouter, useSearchParams } from "next/navigation";
 import { usePathname } from "next/navigation";
-import { SelectOption } from "@/lib/utils/sys-utils";
+import { SelectOption } from "@/types/select-option";
 import Select from "@/components/ui/select";
 
 interface WatchEntryListProps {
