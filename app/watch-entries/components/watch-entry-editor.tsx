@@ -4,42 +4,67 @@ import { Movie } from "@/app/movies/types/movie";
 import { FormField } from "@/components/ui/form-field";
 import { ArrowLeft, LoaderCircle } from "lucide-react";
 import Link from "next/link";
-import { startTransition, useActionState, useMemo, useState } from "react";
+import {
+  startTransition,
+  useActionState,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { createWatchEntryAction } from "../actions/create-watch-entry-action";
 import { ViewingContext } from "../types/viewing-context";
-import noImage from "@/public/no-image.jpg";
-import Image from "next/image";
-import { formatGenreNames } from "@/lib/utils/movie-utils";
-import { MOVIE_TYPE_MAP } from "@/constants/movies";
+import { VIEWING_CONTEXT_MAP } from "@/constants/movies";
 import { DatePicker } from "react-datepicker";
-import { getCurrentDate } from "@/lib/utils/date-utils";
+import {
+  formatDateForApi,
+  getCurrentDate,
+  getFirstDayOfYear,
+} from "@/lib/utils/date-utils";
 import Select from "@/components/ui/select";
 import { Rating } from "@/components/ui/rating";
+import { mapToNumericSelectOptions } from "@/lib/utils/sys-utils";
+import { WatchEntry } from "../types/watch-entry";
+import { updateWatchEntryAction } from "../actions/update-watch-entry-action";
+import WatchEntryMovieInfo from "./watch-entry-movie-info";
 
 interface WatchEntryEditorProps {
   movies: Movie[];
+  watchEntry?: WatchEntry;
 }
 
 interface FormState {
-  movie: Movie | null;
+  movieId: number | null;
   rating: number;
   viewingContext: ViewingContext;
   watchedDate: Date | null;
   review: string;
 }
 
-export default function WatchEntryEditor({ movies }: WatchEntryEditorProps) {
-  const [formState, setFormState] = useState<FormState>({
-    movie: null,
-    rating: 0,
-    viewingContext: ViewingContext.Alone,
-    watchedDate: getCurrentDate(),
-    review: "",
-  });
+type FieldName = keyof FormState;
 
-  const { movie, rating, viewingContext, watchedDate, review } = formState;
-  const genres = movie ? formatGenreNames(movie.genres) : "";
-  const movieType = movie ? MOVIE_TYPE_MAP[movie.movieType] : "";
+const viewingContextOptions = mapToNumericSelectOptions(VIEWING_CONTEXT_MAP);
+
+export default function WatchEntryEditor({
+  movies,
+  watchEntry,
+}: WatchEntryEditorProps) {
+  const isEditMode = !!watchEntry;
+  const today = getCurrentDate();
+
+  const [formState, setFormState] = useState<FormState>({
+    movieId: isEditMode ? watchEntry.movie.id : null,
+    rating: isEditMode ? watchEntry.rating : 0,
+    viewingContext: isEditMode
+      ? watchEntry.viewingContext
+      : ViewingContext.Alone,
+    watchedDate: isEditMode ? watchEntry.watchedDate : today,
+    review: isEditMode ? (watchEntry.review ?? "") : "",
+  });
+  const { movieId, rating, viewingContext, watchedDate, review } = formState;
+
+  const [changedFields, setChangedFields] = useState<Set<FieldName>>(
+    new Set<FieldName>(),
+  );
 
   const movieOptions = useMemo(
     () =>
@@ -50,35 +75,84 @@ export default function WatchEntryEditor({ movies }: WatchEntryEditorProps) {
     [movies],
   );
 
-  const [actionState, formAction, isPending] = useActionState(
-    createWatchEntryAction,
-    { success: false },
-  );
+  const action =
+    isEditMode && watchEntry
+      ? updateWatchEntryAction.bind(null, watchEntry.id)
+      : createWatchEntryAction;
+  const [actionState, formAction, isPending] = useActionState(action, {
+    success: false,
+  });
 
-  const formErrors = actionState.formErrors;
+  useEffect(() => {
+    if (!actionState.success && actionState.fieldErrors) {
+      setChangedFields(new Set<FieldName>());
+    }
+  }, [actionState]);
 
-  const handleMovieChange = (movieId: number | null) => {
-    const selectedMovie = movies.find((m) => m.id === movieId) || null;
-    setFormState((prevState) => ({ ...prevState, movie: selectedMovie }));
+  const getFieldError = (fieldName: FieldName) => {
+    if (changedFields.has(fieldName)) return;
+    return actionState.fieldErrors?.[fieldName];
   };
 
-  const handleStringInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const name = e.target.name as keyof FormState;
+  const movieError = getFieldError("movieId");
+  const ratingError = getFieldError("rating");
+  const viewingContextError = getFieldError("viewingContext");
+  const watchedDateError = getFieldError("watchedDate");
+  const reviewError = getFieldError("review");
+  const formErrors = actionState.formErrors;
+
+  const movie = movies.find((m) => m.id === movieId) || null;
+  const minWatchedDate = movie
+    ? getFirstDayOfYear(movie.releaseYear)
+    : undefined;
+
+  const setChangedField = (fieldName: FieldName) => {
+    setChangedFields((prev) => new Set(prev).add(fieldName));
+  };
+
+  const handleMovieChange = (movieId: number | null) => {
+    setChangedField("movieId");
+    setFormState((prevState: FormState) => ({
+      ...prevState,
+      movieId,
+    }));
+  };
+
+  const handleViewingContextChange = (
+    viewingContext: ViewingContext | null,
+  ) => {
+    setChangedField("viewingContext");
+    if (!viewingContext) return;
+    setFormState((prevState) => ({
+      ...prevState,
+      viewingContext,
+    }));
+  };
+
+  const handleReviewChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setChangedField("review");
+    const name = e.target.name as FieldName;
     const value = e.target.value;
     setFormState((prevState) => ({ ...prevState, [name]: value }));
   };
 
   const handleWatchedDateChange = (date: Date | null) => {
+    setChangedField("watchedDate");
     setFormState((prevState) => ({ ...prevState, watchedDate: date }));
   };
 
   const handleRatingChange = (rating: number) => {
+    setChangedField("rating");
     setFormState((prevState) => ({ ...prevState, rating }));
   };
 
   const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    formData.set(
+      "watchedDate",
+      watchedDate ? formatDateForApi(watchedDate) : "",
+    );
     startTransition(() => {
       formAction(formData);
     });
@@ -92,16 +166,19 @@ export default function WatchEntryEditor({ movies }: WatchEntryEditorProps) {
           className="hover:text-blue-600 transition-colors flex items-center"
         >
           <ArrowLeft className="inline-block w-5 h-5 mr-1" />
-          Back to Movies
+          Back to Watches
         </Link>
       </div>
       <div className="p-6 bg-white rounded-lg shadow">
-        <h1 className="text-2xl font-bold mb-4">Add New Movie</h1>
+        <h1 className="text-2xl font-bold mb-4">
+          {isEditMode ? "Edit Watch Entry" : "Add Watch Entry"}
+        </h1>
         <form onSubmit={handleSubmit}>
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-5">
+            {/* Movie */}
             <div className="flex flex-col gap-1">
               <label htmlFor="movieId" className="font-semibold">
-                Movie
+                Movie *
               </label>
               <Select
                 id="movieId"
@@ -110,31 +187,16 @@ export default function WatchEntryEditor({ movies }: WatchEntryEditorProps) {
                 onChange={handleMovieChange}
                 options={movieOptions}
               ></Select>
-            </div>
-            <div className="bg-gray-50 rounded-lg p-2 flex flex-row gap-4">
-              <div className="w-16 h-24 relative rounded-md overflow-hidden">
-                <Image
-                  src={movie?.imageUrl || noImage}
-                  alt="Selected Image"
-                  fill
-                  className="object-cover"
-                ></Image>
-              </div>
-              {movie && (
-                <div>
-                  <div className="font-semibold">{movie?.title}</div>
-                  <div className="text-sm text-gray-600">
-                    <span>{movie.releaseYear}</span>
-                    <span> • </span>
-                    <span>{genres}</span>
-                  </div>
-                  <div className="text-sm text-gray-600">{movieType}</div>
-                </div>
+              {movieError && (
+                <p className="text-red-500 text-sm mt-1">{movieError}</p>
               )}
+              {movie && <WatchEntryMovieInfo movie={movie} />}
             </div>
+
+            {/* Watch Date */}
             <div className="flex flex-col gap-1">
               <label htmlFor="watchedDate" className="font-semibold">
-                Watch Date
+                Watch Date *
               </label>
               <DatePicker
                 showIcon
@@ -143,42 +205,80 @@ export default function WatchEntryEditor({ movies }: WatchEntryEditorProps) {
                 placeholderText=""
                 dateFormat="dd.MM.yyyy"
                 selected={watchedDate}
+                minDate={minWatchedDate}
+                maxDate={today}
                 enableTabLoop={false}
                 popperPlacement="bottom-start"
+                autoComplete="off"
                 onChange={handleWatchedDateChange}
                 className="form-input w-full"
               />
+              {watchedDateError && (
+                <p className="text-red-500 text-sm mt-1">{watchedDateError}</p>
+              )}
             </div>
+
+            {/* Rating */}
             <div className="flex flex-col gap-1">
-              <label className="font-semibold">Rating</label>
+              <label className="font-semibold">Rating *</label>
               <Rating
                 value={rating}
                 starSize="large"
                 isEditable={true}
+                showTextValue={true}
                 onChange={handleRatingChange}
               />
+              {ratingError && (
+                <p className="text-red-500 text-sm mt-1">{ratingError}</p>
+              )}
+              <input type="hidden" name="rating" value={rating} />
             </div>
 
+            {/* Viewing Context */}
+            <div className="flex flex-col gap-1">
+              <label htmlFor="viewingContext" className="font-semibold">
+                Watched with
+              </label>
+              <Select
+                id="viewingContext"
+                name="viewingContext"
+                value={viewingContext}
+                onChange={handleViewingContextChange}
+                options={viewingContextOptions}
+              ></Select>
+              {viewingContextError && (
+                <p className="text-red-500 text-sm mt-1">
+                  {viewingContextError}
+                </p>
+              )}
+            </div>
+
+            {/* Review */}
             <FormField
-              fieldType="text"
+              fieldType="textarea"
               label="Review"
               name="review"
               value={review}
-              onChange={handleStringInputChange}
+              rows={3}
+              onChange={handleReviewChange}
+              error={reviewError}
             />
           </div>
           <hr className="border-gray-300 my-4"></hr>
+
+          {/* Save button */}
           <button
             className="btn btn-main btn-primary"
             type="submit"
             disabled={isPending}
           >
             {!isPending ? (
-              "Save Movie"
+              "Save Watch Entry"
             ) : (
               <LoaderCircle className="mx-2 animate-spin" />
             )}
           </button>
+
           {formErrors && formErrors.length > 0 && (
             <div className="mt-4">
               {formErrors.map((error, index) => (

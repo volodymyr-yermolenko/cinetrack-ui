@@ -9,9 +9,12 @@ interface NavLinkProps {
 }
 
 export default function NavLink({ href, children }: NavLinkProps) {
-  const pathName = usePathname();
-  const activeClasses =
-    pathName === href ? "text-blue-600 font-[550]" : "text-gray-700";
+  const pathname = usePathname();
+
+  const isActive =
+    pathname === href || (pathname.startsWith(href) && href !== "/");
+
+  const activeClasses = isActive ? "text-blue-600 font-[550]" : "text-gray-700";
   return (
     <Link
       href={href}

@@ -6,6 +6,6 @@ export interface WatchEntry {
   rating: number;
   viewingContext: ViewingContext;
   watchedDate: Date;
-  review?: string;
+  review: string | null;
   movie: Movie;
 }

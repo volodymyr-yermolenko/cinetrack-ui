@@ -42,7 +42,7 @@ const movieValidationSchema = z.object({
       `Title must be less than ${MOVIE_TITLE_MAX_LENGTH} characters`,
     ),
   movieType: z.coerce
-    .number("Invalid movie type")
+    .number({ message: "Invalid movie type" })
     .refine((val) => Object.values(MovieType).includes(val), {
       message: "Invalid movie type",
     }),
@@ -52,7 +52,7 @@ const movieValidationSchema = z.object({
     .min(1, "Release year is required")
     .pipe(
       z.coerce
-        .number<string>("Release year must be a number")
+        .number<string>({ message: "Release year must be a number" })
         .min(
           MOVIE_RELEASE_YEAR_MIN,
           `Release year must be at least ${MOVIE_RELEASE_YEAR_MIN}`,
