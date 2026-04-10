@@ -162,7 +162,7 @@ export default function WatchEntryEditor({
     <div className="w-[800px] mx-auto">
       <div className="p-4">
         <Link
-          href="/movies"
+          href="/watch-entries"
           className="hover:text-blue-600 transition-colors flex items-center"
         >
           <ArrowLeft className="inline-block w-5 h-5 mr-1" />
