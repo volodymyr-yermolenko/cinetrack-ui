@@ -1,4 +1,5 @@
 import z from "zod";
+import { ViewingContext } from "../types/viewing-context";
 
 export function validateWatchEntry(
   formData: FormData,
@@ -9,7 +10,7 @@ export function validateWatchEntry(
   const review = formData.get("review")?.toString() ?? "";
   const viewingContext = formData.get("viewingContext")?.toString() ?? "";
 
-  const movie = {
+  const watchEntry = {
     movieId,
     watchedDate,
     rating,
@@ -17,25 +18,36 @@ export function validateWatchEntry(
     viewingContext,
   };
 
-  return watchEntryValidationSchema.safeParse(movie);
+  return watchEntryValidationSchema.safeParse(watchEntry);
 }
 
 const watchEntryValidationSchema = z.object({
   movieId: z
-    .number({ message: "Movie ID must be a number" })
-    .min(1, "Movie is required"),
+    .string()
+    .trim()
+    .min(1, "Movie is required")
+    .pipe(z.coerce.number<string>({ message: "Movie ID must be a number" })),
   watchedDate: z
     .string()
     .trim()
     .min(1, "Watched date is required")
-    .pipe(z.coerce.date({ message: "Invalid date format" })),
+    .pipe(z.coerce.date<string>({ message: "Invalid date format" })),
   rating: z
     .string()
     .trim()
     .min(1, "Rating is required")
-    .pipe(z.coerce.number({ message: "Rating must be a number" })),
-  review: z.string().trim().max(1000, "Review cannot exceed 1000 characters"),
-  viewingContext: z.number(),
+    .pipe(
+      z.coerce
+        .number<string>({ message: "Rating must be a number" })
+        .min(1, "Rating is required")
+        .max(10, "Rating cannot be more than 10"),
+    ),
+  review: z.string().trim().max(200, "Review cannot exceed 200 characters"),
+  viewingContext: z.coerce
+    .number({ message: "Invalid viewing context type" })
+    .refine((val) => Object.values(ViewingContext).includes(val), {
+      message: "Invalid viewing context",
+    }),
 });
 
 type WatchEntryInput = z.infer<typeof watchEntryValidationSchema>;

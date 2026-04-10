@@ -32,6 +32,9 @@ interface FormState {
 
 type FieldName = keyof FormState;
 
+const movieTypeOptions = mapToNumericSelectOptions<MovieType>(MOVIE_TYPE_MAP);
+const releaseYearPlaceHolder = (getCurrentYear() - 10).toString();
+
 export default function MovieEditor({ genres, movie }: MovieEditorProps) {
   const isEditMode = !!movie;
 
@@ -50,8 +53,6 @@ export default function MovieEditor({ genres, movie }: MovieEditorProps) {
     new Set<FieldName>(),
   );
 
-  const movieTypeOptions = mapToNumericSelectOptions<MovieType>(MOVIE_TYPE_MAP);
-
   const action =
     isEditMode && movie
       ? updateMovieAction.bind(null, movie.id)
@@ -60,14 +61,19 @@ export default function MovieEditor({ genres, movie }: MovieEditorProps) {
     success: false,
   });
 
+  useEffect(() => {
+    if (!actionState.success && actionState.fieldErrors) {
+      setChangedFields(new Set());
+    }
+  }, [actionState]);
+
   const setChangedField = (fieldName: FieldName) => {
     setChangedFields((prev) => new Set(prev).add(fieldName));
   };
 
   const getFieldError = (fieldName: FieldName) => {
-    return !changedFields.has(fieldName)
-      ? actionState.fieldErrors?.[fieldName]
-      : undefined;
+    if (changedFields.has(fieldName)) return undefined;
+    return actionState.fieldErrors?.[fieldName];
   };
 
   const titleError = getFieldError("title");
@@ -76,13 +82,12 @@ export default function MovieEditor({ genres, movie }: MovieEditorProps) {
   const genresError = getFieldError("genreIds");
   const imageError = getFieldError("image");
   const formErrors = actionState.formErrors;
-  const releaseYearPlaceHolder = (getCurrentYear() - 10).toString();
 
   const handleStringInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const name = e.target.name as keyof FormState;
+    const name = e.target.name as FieldName;
     const value = e.target.value;
     setFormState((prevState) => ({ ...prevState, [name]: value }));
-    setChangedField(name as FieldName);
+    setChangedField(name);
   };
 
   const handleGenresChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,6 +102,7 @@ export default function MovieEditor({ genres, movie }: MovieEditorProps) {
   };
 
   const handleMovieTypeChange = (movieType: MovieType | null) => {
+    setChangedField("movieType");
     if (!movieType) return;
     setFormState((prevState) => ({ ...prevState, movieType }));
   };
@@ -128,17 +134,10 @@ export default function MovieEditor({ genres, movie }: MovieEditorProps) {
     if (image) {
       formData.append("image", image);
     }
-
     startTransition(() => {
       formAction(formData);
     });
   };
-
-  useEffect(() => {
-    if (!actionState.success && actionState.fieldErrors) {
-      setChangedFields(new Set());
-    }
-  }, [actionState]);
 
   return (
     <div className="w-[800px] mx-auto">
@@ -156,7 +155,8 @@ export default function MovieEditor({ genres, movie }: MovieEditorProps) {
           {isEditMode ? "Edit Movie" : "Add New Movie"}
         </h1>
         <form onSubmit={handleSubmit}>
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-5">
+            {/* Title */}
             <FormField
               fieldType="text"
               label="Title"
@@ -166,6 +166,8 @@ export default function MovieEditor({ genres, movie }: MovieEditorProps) {
               onChange={handleStringInputChange}
               error={titleError}
             />
+
+            {/* Release Year */}
             <FormField
               fieldType="number"
               label="Release Year"
@@ -173,9 +175,11 @@ export default function MovieEditor({ genres, movie }: MovieEditorProps) {
               value={releaseYear}
               required
               onChange={handleStringInputChange}
-              placeHolder={releaseYearPlaceHolder}
+              placeholder={releaseYearPlaceHolder}
               error={releaseYearError}
             />
+
+            {/* Movie Type */}
             <div className="flex flex-col gap-1">
               <label htmlFor="movieType" className="font-semibold">
                 Movie Type
@@ -187,10 +191,12 @@ export default function MovieEditor({ genres, movie }: MovieEditorProps) {
                 onChange={handleMovieTypeChange}
                 options={movieTypeOptions}
               ></Select>
+              {movieTypeError && (
+                <p className="text-red-500 text-sm mt-1">{movieTypeError}</p>
+              )}
             </div>
-            {movieTypeError && (
-              <p className="text-red-500 text-sm mt-1">{movieTypeError}</p>
-            )}
+
+            {/* Genres */}
             <div className="flex flex-col gap-1">
               <label className="font-semibold">Genres *</label>
               <div className="grid grid-flow-col grid-rows-6 w-96 gap-x-1">
@@ -212,6 +218,8 @@ export default function MovieEditor({ genres, movie }: MovieEditorProps) {
                 <p className="text-red-500 text-sm mt-1">{genresError}</p>
               )}
             </div>
+
+            {/* Image */}
             <div className="flex flex-col gap-1">
               <label className="font-semibold" htmlFor="image">
                 Image
@@ -227,6 +235,8 @@ export default function MovieEditor({ genres, movie }: MovieEditorProps) {
             </div>
           </div>
           <hr className="border-gray-300 my-4"></hr>
+
+          {/* Save button */}
           <button
             className="btn btn-main btn-primary"
             type="submit"
@@ -238,6 +248,7 @@ export default function MovieEditor({ genres, movie }: MovieEditorProps) {
               <LoaderCircle className="mx-2 animate-spin" />
             )}
           </button>
+
           {formErrors && formErrors.length > 0 && (
             <div className="mt-4">
               {formErrors.map((error, index) => (

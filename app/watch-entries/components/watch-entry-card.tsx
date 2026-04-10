@@ -19,6 +19,7 @@ import { startTransition, useActionState, useEffect, useState } from "react";
 import { deleteWatchEntryAction } from "../actions/delete-watch-entry-action";
 import ConfirmDialog from "@/components/ui/confirm-dialog";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface WatchEntryCardProps {
   watchEntry: WatchEntry;
@@ -65,7 +66,7 @@ export default function WatchEntryCard({ watchEntry }: WatchEntryCardProps) {
 
   return (
     <>
-      <div className="w-full p-4 bg-white rounded-lg items-start shadow-sm hover:shadow-md overflow-hidden transition-shadow flex flex-row gap-5">
+      <div className="w-full p-3 bg-white rounded-lg items-start shadow-sm hover:shadow-md overflow-hidden transition-shadow flex flex-row gap-5">
         <div className="rounded-lg overflow-hidden relative w-[135px] h-[155px]">
           <Image
             src={imageScr}
@@ -106,9 +107,12 @@ export default function WatchEntryCard({ watchEntry }: WatchEntryCardProps) {
           </div>
         </div>
         <div className="w-24 flex gap-2">
-          <button className="btn-icon btn-secondary">
+          <Link
+            href={`/watch-entries/${watchEntry.id}/edit`}
+            className="btn-icon btn-secondary"
+          >
             <SquarePen className="w-4 h-4" />
-          </button>
+          </Link>
           <button className="btn-icon btn-alert" onClick={handleDeleteClick}>
             <Trash2 className="w-4 h-4" />
           </button>

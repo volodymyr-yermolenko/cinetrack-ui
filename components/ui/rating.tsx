@@ -1,9 +1,12 @@
 import { Star } from "lucide-react";
 import { useState } from "react";
 
+const MAX_RATING = 10;
+
 interface RatingProps {
   value: number;
   starSize: "small" | "large";
+  showTextValue?: boolean;
   isEditable?: boolean;
   onChange?: (newValue: number) => void;
 }
@@ -11,11 +14,11 @@ interface RatingProps {
 export function Rating({
   value,
   starSize,
+  showTextValue: showValue = false,
   isEditable = false,
   onChange,
 }: RatingProps) {
-  const maxValue = 10;
-  const currentValue = Math.min(value, maxValue);
+  const currentValue = Math.min(value, MAX_RATING);
   const [hoveredValue, setHoveredValue] = useState<number | null>(null);
   const displayedValue = hoveredValue ?? currentValue;
 
@@ -39,7 +42,7 @@ export function Rating({
       className={`flex items-center gap-[2px] ${isEditable ? "cursor-pointer" : ""}`}
       onMouseLeave={isEditable ? () => setHoveredValue(null) : undefined}
     >
-      {Array.from({ length: maxValue }, (_, i) => {
+      {Array.from({ length: MAX_RATING }, (_, i) => {
         const starValue = i + 1;
         return (
           <div
@@ -62,7 +65,9 @@ export function Rating({
           </div>
         );
       })}
-      <span className="ml-3">{`${currentValue}/${maxValue}`}</span>
+      {showValue && (
+        <span className="ml-3">{`${currentValue} / ${MAX_RATING}`}</span>
+      )}
     </div>
   );
 }

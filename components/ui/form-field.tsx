@@ -1,15 +1,24 @@
-type FormFieldType = "text" | "number";
-
-interface FormFieldProps {
-  fieldType: FormFieldType;
+interface BaseFormFieldProps {
   label: string;
   name: string;
   value?: string;
-  placeHolder?: string;
+  placeholder?: string;
   required?: boolean;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   error?: string;
 }
+
+interface TextInputFormFieldProps extends BaseFormFieldProps {
+  fieldType: "text" | "number";
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+interface TextAreaFormFieldProps extends BaseFormFieldProps {
+  fieldType: "textarea";
+  rows?: number;
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+}
+
+type FormFieldProps = TextInputFormFieldProps | TextAreaFormFieldProps;
 
 export function FormField(props: FormFieldProps) {
   return (
@@ -18,15 +27,28 @@ export function FormField(props: FormFieldProps) {
         {props.label}
         {props.required && <span> *</span>}
       </label>
-      <input
-        type={props.fieldType}
-        id={props.name}
-        name={props.name}
-        value={props.value ?? ""}
-        placeholder={props.placeHolder}
-        onChange={props.onChange}
-        className="form-input w-full"
-      />
+      {props.fieldType === "textarea" ? (
+        <textarea
+          id={props.name}
+          name={props.name}
+          value={props.value ?? ""}
+          placeholder={props.placeholder}
+          onChange={props.onChange}
+          className="form-input w-full"
+          rows={props.rows}
+          style={{ resize: "none" }}
+        />
+      ) : (
+        <input
+          type={props.fieldType}
+          id={props.name}
+          name={props.name}
+          value={props.value ?? ""}
+          placeholder={props.placeholder}
+          onChange={props.onChange}
+          className="form-input w-full"
+        />
+      )}
       {props.error && (
         <p className="text-red-500 text-sm mt-1">{props.error}</p>
       )}

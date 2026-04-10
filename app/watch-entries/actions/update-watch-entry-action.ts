@@ -1,15 +1,16 @@
 "use server";
 
-import { formatZodFieldErrors } from "@/lib/utils/zod-utils";
-import { ActionResult } from "@/types/action-result";
-import { redirect } from "next/navigation";
-import z from "zod";
 import { validateWatchEntry } from "./validation";
-import { createWatchEntry } from "../api/create-watch-entry";
+import z from "zod";
+import { formatZodFieldErrors } from "@/lib/utils/zod-utils";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { updateWatchEntry } from "../api/update-watch-entry";
 import { ApiError } from "@/lib/errors/api-error";
+import { ActionResult } from "@/types/action-result";
 
-export async function createWatchEntryAction(
+export async function updateWatchEntryAction(
+  watchEntryId: number,
   prevState: ActionResult,
   formData: FormData,
 ): Promise<ActionResult> {
@@ -24,7 +25,7 @@ export async function createWatchEntryAction(
   }
 
   try {
-    await createWatchEntry({ ...watchEntry.data });
+    await updateWatchEntry(watchEntryId, { ...watchEntry.data });
   } catch (error: unknown) {
     if (error instanceof ApiError) {
       return {
