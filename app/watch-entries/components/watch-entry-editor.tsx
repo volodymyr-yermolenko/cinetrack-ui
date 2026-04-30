@@ -91,7 +91,9 @@ export default function WatchEntryEditor({
 
   const getFieldError = (fieldName: FieldName) => {
     if (changedFields.has(fieldName)) return;
-    return actionState.fieldErrors?.[fieldName];
+    return !actionState.success
+      ? actionState.fieldErrors?.[fieldName]
+      : undefined;
   };
 
   const movieError = getFieldError("movieId");
@@ -99,7 +101,7 @@ export default function WatchEntryEditor({
   const viewingContextError = getFieldError("viewingContext");
   const watchedDateError = getFieldError("watchedDate");
   const reviewError = getFieldError("review");
-  const formErrors = actionState.formErrors;
+  const formErrors = !actionState.success ? actionState.formErrors : undefined;
 
   const movie = movies.find((m) => m.id === movieId) || null;
   const minWatchedDate = movie

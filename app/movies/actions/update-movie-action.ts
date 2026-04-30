@@ -4,11 +4,11 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import z from "zod";
 import { ActionResult } from "@/types/action-result";
-import { ApiError } from "@/lib/errors/api-error";
 import { formatZodFieldErrors } from "@/lib/utils/zod-utils";
 import { uploadImage } from "@/lib/cloudinary";
 import { updateMovie } from "../api/update-movie";
 import { validateMovie } from "./validation";
+import { execute } from "@/lib/utils/api-utils";
 
 export async function updateMovieAction(
   movieId: number,
@@ -40,16 +40,14 @@ export async function updateMovieAction(
     }
   }
 
-  try {
-    await updateMovie(movieId, { ...movieData, imageUrl });
-  } catch (error: unknown) {
-    if (error instanceof ApiError) {
-      return {
-        success: false,
-        formErrors: [error.message],
-      };
-    }
-    throw error;
+  const result = await execute(() =>
+    updateMovie(movieId, { ...movieData, imageUrl }),
+  );
+  if (!result.success) {
+    return {
+      success: false,
+      formErrors: result.errors,
+    };
   }
 
   revalidatePath("/movies");

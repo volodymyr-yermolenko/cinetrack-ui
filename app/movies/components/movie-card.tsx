@@ -96,7 +96,7 @@ export default function MovieCard({ movie }: MovieCardProps) {
         header="Delete Movie"
         message={`Are you sure you want to delete "${movie.title}"? This action cannot be undone.`}
         isPending={isPending}
-        error={deleteState.formErrors?.[0]}
+        error={!deleteState.success ? deleteState.formErrors?.[0] : undefined}
         confirmText="Delete"
         cancelText="Cancel"
         variant="danger"

@@ -1,6 +1,7 @@
 import NavLink from "../ui/nav-link";
 import Link from "next/link";
 import { Film } from "lucide-react";
+import { LOGIN_URL } from "@/constants/authentication";
 
 export default function Header() {
   return (
@@ -22,7 +23,7 @@ export default function Header() {
             <NavLink href="/watch-entries">Watches</NavLink>
           </li>
           <li>
-            <NavLink href="/signin">Sign in</NavLink>
+            <NavLink href={LOGIN_URL}>Sign in</NavLink>
           </li>
         </ul>
       </nav>

@@ -7,7 +7,7 @@ import z from "zod";
 import { validateWatchEntry } from "./validation";
 import { createWatchEntry } from "../api/create-watch-entry";
 import { revalidatePath } from "next/cache";
-import { ApiError } from "@/lib/errors/api-error";
+import { execute } from "@/lib/utils/api-utils";
 
 export async function createWatchEntryAction(
   prevState: ActionResult,
@@ -23,16 +23,12 @@ export async function createWatchEntryAction(
     };
   }
 
-  try {
-    await createWatchEntry({ ...watchEntry.data });
-  } catch (error: unknown) {
-    if (error instanceof ApiError) {
-      return {
-        success: false,
-        formErrors: [error.message],
-      };
-    }
-    throw error;
+  const result = await execute(() => createWatchEntry({ ...watchEntry.data }));
+  if (!result.success) {
+    return {
+      success: false,
+      formErrors: result.errors,
+    };
   }
 
   revalidatePath("/watch-entries");

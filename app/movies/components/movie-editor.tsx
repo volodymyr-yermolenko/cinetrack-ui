@@ -73,7 +73,9 @@ export default function MovieEditor({ genres, movie }: MovieEditorProps) {
 
   const getFieldError = (fieldName: FieldName) => {
     if (changedFields.has(fieldName)) return undefined;
-    return actionState.fieldErrors?.[fieldName];
+    return !actionState.success
+      ? actionState.fieldErrors?.[fieldName]
+      : undefined;
   };
 
   const titleError = getFieldError("title");
@@ -81,7 +83,7 @@ export default function MovieEditor({ genres, movie }: MovieEditorProps) {
   const movieTypeError = getFieldError("movieType");
   const genresError = getFieldError("genreIds");
   const imageError = getFieldError("image");
-  const formErrors = actionState.formErrors;
+  const formErrors = !actionState.success ? actionState.formErrors : undefined;
 
   const handleStringInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const name = e.target.name as FieldName;

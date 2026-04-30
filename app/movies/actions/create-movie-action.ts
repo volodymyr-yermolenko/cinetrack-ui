@@ -5,10 +5,10 @@ import { createMovie } from "../api/create-movie";
 import { redirect } from "next/navigation";
 import z from "zod";
 import { ActionResult } from "@/types/action-result";
-import { ApiError } from "@/lib/errors/api-error";
 import { formatZodFieldErrors } from "@/lib/utils/zod-utils";
 import { uploadImage } from "@/lib/cloudinary";
 import { validateMovie } from "./validation";
+import { execute } from "@/lib/utils/api-utils";
 
 export async function createMovieAction(
   prevState: ActionResult,
@@ -38,16 +38,13 @@ export async function createMovieAction(
     }
   }
 
-  try {
-    await createMovie({ ...movieData, imageUrl });
-  } catch (error: unknown) {
-    if (error instanceof ApiError) {
-      return {
-        success: false,
-        formErrors: [error.message],
-      };
-    }
-    throw error;
+  const result = await execute(() => createMovie({ ...movieData, imageUrl }));
+
+  if (!result.success) {
+    return {
+      success: false,
+      formErrors: result.errors,
+    };
   }
 
   revalidatePath("/movies");

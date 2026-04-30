@@ -123,7 +123,7 @@ export default function WatchEntryCard({ watchEntry }: WatchEntryCardProps) {
         header="Delete Watch"
         message={`Are you sure you want to delete "${watchEntry.movie.title}" watch? This action cannot be undone.`}
         isPending={isPending}
-        error={deleteState.formErrors?.[0]}
+        error={!deleteState.success ? deleteState.formErrors?.[0] : undefined}
         confirmText="Delete"
         cancelText="Cancel"
         variant="danger"
