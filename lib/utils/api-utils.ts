@@ -6,11 +6,11 @@ import { ExecuteResult } from "@/types/execute-result";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 
 export async function execute<T>(
-  command: () => Promise<T>,
+  call: () => Promise<T>,
   isPublic: boolean = false,
 ): Promise<ExecuteResult<T>> {
   try {
-    const result = await command();
+    const result = await call();
     return {
       success: true,
       data: result,
