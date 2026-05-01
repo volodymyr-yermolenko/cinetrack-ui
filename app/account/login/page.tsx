@@ -1,11 +1,11 @@
-import LoginForm from "../components/login";
+import LoginForm from "../components/login-form";
 
 interface LoginPageProps {
-  params: Promise<{ returnUrl?: string }>;
+  searchParams: Promise<{ returnUrl?: string }>;
 }
 
-export default async function LoginPage({ params }: LoginPageProps) {
-  const { returnUrl } = await params;
+export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const { returnUrl } = await searchParams;
 
   return <LoginForm returnUrl={returnUrl} />;
 }

@@ -10,6 +10,10 @@ import z from "zod";
 import { LoginStatus } from "../types/login-status";
 import { cookies } from "next/headers";
 import { execute } from "@/lib/utils/api-utils";
+import {
+  ACCESS_TOKEN_COOKIE_MAX_AGE_MINUTES,
+  ACCESS_TOKEN_COOKIE_NAME,
+} from "@/constants/authentication";
 
 export async function loginUserAction(
   prevState: ActionResult<LoginStatus>,
@@ -60,10 +64,11 @@ export async function loginUserAction(
 
 async function setAccessTokenCookie(token: string) {
   const cookieStore = await cookies();
-  cookieStore.set("accessToken", token, {
+  cookieStore.set(ACCESS_TOKEN_COOKIE_NAME, token, {
     httpOnly: true,
     secure: ENV.isProd,
     sameSite: "lax",
+    maxAge: ACCESS_TOKEN_COOKIE_MAX_AGE_MINUTES * 60,
   });
 }
 
