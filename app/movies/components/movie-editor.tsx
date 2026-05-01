@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Genre } from "../types/genre";
 import { MovieType } from "../types/movie-type";
 import { createMovieAction } from "../actions/create-movie-action";
-import { startTransition, useActionState, useEffect, useState } from "react";
+import { startTransition, useActionState, useState } from "react";
 import { getCurrentYear } from "@/lib/utils/date-utils";
 import { LoaderCircle } from "lucide-react";
 import { FormField } from "@/components/ui/form-field";
@@ -15,6 +15,7 @@ import { ImageSelector } from "@/components/ui/image-selector";
 import Select from "@/components/ui/select";
 import { mapToNumericSelectOptions } from "@/lib/utils/sys-utils";
 import { MOVIE_TYPE_MAP } from "@/constants/movies";
+import { useFormErrors } from "@/lib/hooks/use-form-errors";
 
 interface MovieEditorProps {
   genres: Genre[];
@@ -49,10 +50,6 @@ export default function MovieEditor({ genres, movie }: MovieEditorProps) {
   const { title, releaseYear, movieType, genreIds, imageUrl, image } =
     formState;
 
-  const [changedFields, setChangedFields] = useState<Set<FieldName>>(
-    new Set<FieldName>(),
-  );
-
   const action =
     isEditMode && movie
       ? updateMovieAction.bind(null, movie.id)
@@ -61,38 +58,25 @@ export default function MovieEditor({ genres, movie }: MovieEditorProps) {
     success: false,
   });
 
-  useEffect(() => {
-    if (!actionState.success && actionState.fieldErrors) {
-      setChangedFields(new Set());
-    }
-  }, [actionState]);
-
-  const setChangedField = (fieldName: FieldName) => {
-    setChangedFields((prev) => new Set(prev).add(fieldName));
-  };
-
-  const getFieldError = (fieldName: FieldName) => {
-    if (changedFields.has(fieldName)) return undefined;
-    return !actionState.success
-      ? actionState.fieldErrors?.[fieldName]
-      : undefined;
-  };
+  const { getFieldError, getFormErrors, markFieldAsChanged } =
+    useFormErrors<FieldName>(actionState);
 
   const titleError = getFieldError("title");
   const releaseYearError = getFieldError("releaseYear");
   const movieTypeError = getFieldError("movieType");
   const genresError = getFieldError("genreIds");
   const imageError = getFieldError("image");
-  const formErrors = !actionState.success ? actionState.formErrors : undefined;
+  const formErrors = getFormErrors();
 
   const handleStringInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const name = e.target.name as FieldName;
     const value = e.target.value;
+    markFieldAsChanged(name);
     setFormState((prevState) => ({ ...prevState, [name]: value }));
-    setChangedField(name);
   };
 
   const handleGenresChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    markFieldAsChanged("genreIds");
     const value = Number(e.target.value);
     setFormState((prevState) => ({
       ...prevState,
@@ -100,17 +84,16 @@ export default function MovieEditor({ genres, movie }: MovieEditorProps) {
         ? [...prevState.genreIds, value]
         : prevState.genreIds.filter((id) => id !== value),
     }));
-    setChangedField("genreIds");
   };
 
   const handleMovieTypeChange = (movieType: MovieType | null) => {
-    setChangedField("movieType");
+    markFieldAsChanged("movieType");
     if (!movieType) return;
     setFormState((prevState) => ({ ...prevState, movieType }));
   };
 
   const handleImageSelect = (file: File) => {
-    setChangedField("image");
+    markFieldAsChanged("image");
     setFormState((prevState) => ({
       ...prevState,
       image: file,
@@ -119,7 +102,7 @@ export default function MovieEditor({ genres, movie }: MovieEditorProps) {
   };
 
   const handleImageRemove = () => {
-    setChangedField("image");
+    markFieldAsChanged("image");
     setFormState((prevState) => ({
       ...prevState,
       image: null,

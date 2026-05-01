@@ -4,13 +4,7 @@ import { Movie } from "@/app/movies/types/movie";
 import { FormField } from "@/components/ui/form-field";
 import { ArrowLeft, LoaderCircle } from "lucide-react";
 import Link from "next/link";
-import {
-  startTransition,
-  useActionState,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { startTransition, useActionState, useMemo, useState } from "react";
 import { createWatchEntryAction } from "../actions/create-watch-entry-action";
 import { ViewingContext } from "../types/viewing-context";
 import { VIEWING_CONTEXT_MAP } from "@/constants/movies";
@@ -26,6 +20,7 @@ import { mapToNumericSelectOptions } from "@/lib/utils/sys-utils";
 import { WatchEntry } from "../types/watch-entry";
 import { updateWatchEntryAction } from "../actions/update-watch-entry-action";
 import WatchEntryMovieInfo from "./watch-entry-movie-info";
+import { useFormErrors } from "@/lib/hooks/use-form-errors";
 
 interface WatchEntryEditorProps {
   movies: Movie[];
@@ -62,10 +57,6 @@ export default function WatchEntryEditor({
   });
   const { movieId, rating, viewingContext, watchedDate, review } = formState;
 
-  const [changedFields, setChangedFields] = useState<Set<FieldName>>(
-    new Set<FieldName>(),
-  );
-
   const movieOptions = useMemo(
     () =>
       movies.map((movie) => ({
@@ -83,37 +74,23 @@ export default function WatchEntryEditor({
     success: false,
   });
 
-  useEffect(() => {
-    if (!actionState.success && actionState.fieldErrors) {
-      setChangedFields(new Set<FieldName>());
-    }
-  }, [actionState]);
-
-  const getFieldError = (fieldName: FieldName) => {
-    if (changedFields.has(fieldName)) return;
-    return !actionState.success
-      ? actionState.fieldErrors?.[fieldName]
-      : undefined;
-  };
+  const { getFieldError, getFormErrors, markFieldAsChanged } =
+    useFormErrors<FieldName>(actionState);
 
   const movieError = getFieldError("movieId");
   const ratingError = getFieldError("rating");
   const viewingContextError = getFieldError("viewingContext");
   const watchedDateError = getFieldError("watchedDate");
   const reviewError = getFieldError("review");
-  const formErrors = !actionState.success ? actionState.formErrors : undefined;
+  const formErrors = getFormErrors();
 
   const movie = movies.find((m) => m.id === movieId) || null;
   const minWatchedDate = movie
     ? getFirstDayOfYear(movie.releaseYear)
     : undefined;
 
-  const setChangedField = (fieldName: FieldName) => {
-    setChangedFields((prev) => new Set(prev).add(fieldName));
-  };
-
   const handleMovieChange = (movieId: number | null) => {
-    setChangedField("movieId");
+    markFieldAsChanged("movieId");
     setFormState((prevState: FormState) => ({
       ...prevState,
       movieId,
@@ -123,7 +100,7 @@ export default function WatchEntryEditor({
   const handleViewingContextChange = (
     viewingContext: ViewingContext | null,
   ) => {
-    setChangedField("viewingContext");
+    markFieldAsChanged("viewingContext");
     if (!viewingContext) return;
     setFormState((prevState) => ({
       ...prevState,
@@ -132,19 +109,19 @@ export default function WatchEntryEditor({
   };
 
   const handleReviewChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setChangedField("review");
+    markFieldAsChanged("review");
     const name = e.target.name as FieldName;
     const value = e.target.value;
     setFormState((prevState) => ({ ...prevState, [name]: value }));
   };
 
   const handleWatchedDateChange = (date: Date | null) => {
-    setChangedField("watchedDate");
+    markFieldAsChanged("watchedDate");
     setFormState((prevState) => ({ ...prevState, watchedDate: date }));
   };
 
   const handleRatingChange = (rating: number) => {
-    setChangedField("rating");
+    markFieldAsChanged("rating");
     setFormState((prevState) => ({ ...prevState, rating }));
   };
 

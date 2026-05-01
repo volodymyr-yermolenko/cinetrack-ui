@@ -2,10 +2,11 @@
 
 import { FormField } from "@/components/ui/form-field";
 import { LoaderCircle } from "lucide-react";
-import { startTransition, useActionState, useEffect, useState } from "react";
+import { startTransition, useActionState, useState } from "react";
 import { loginUserAction } from "../actions/login-user-action";
 import { Login } from "../types/login";
 import { LoginStatus } from "../types/login-status";
+import { useFormErrors } from "@/lib/hooks/use-form-errors";
 
 interface LoginFormProps {
   returnUrl?: string;
@@ -25,34 +26,22 @@ export default function LoginForm({ returnUrl }: LoginFormProps) {
   });
   const { email, password } = formState;
 
-  const [changedFields, setChangedFields] = useState(new Set<FieldName>());
-
   const [actionState, formAction, isPending] = useActionState(loginUserAction, {
     success: false,
   });
 
-  useEffect(() => {
-    if (!actionState.success && actionState.fieldErrors) {
-      setChangedFields(new Set<FieldName>());
-    }
-  }, [actionState]);
-
-  const getFieldError = (fieldName: FieldName) => {
-    if (changedFields.has(fieldName)) return undefined;
-    return !actionState.success
-      ? actionState.fieldErrors?.[fieldName]
-      : undefined;
-  };
+  const { getFieldError, getFormErrors, markFieldAsChanged } =
+    useFormErrors<FieldName>(actionState);
 
   const emailError = getFieldError("email");
   const passwordError = getFieldError("password");
-  const formErrors = !actionState.success ? actionState.formErrors : undefined;
+  const formErrors = getFormErrors();
 
   const handleStringInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const name = e.target.name as FieldName;
     const value = e.target.value;
     setFormState((prevState) => ({ ...prevState, [name]: value }));
-    setChangedFields((prevState) => new Set(prevState).add(name));
+    markFieldAsChanged(name);
   };
 
   const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
