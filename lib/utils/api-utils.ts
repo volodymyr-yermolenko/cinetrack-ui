@@ -1,9 +1,13 @@
 import { ApiClientError } from "../errors/api-client-error";
 import { ApiAuthError } from "../errors/api-auth-error";
-import { LOGIN_URL } from "@/constants/authentication";
+import {
+  ACCESS_TOKEN_COOKIE_NAME,
+  LOGIN_URL,
+} from "@/constants/authentication";
 import { redirect } from "next/navigation";
 import { ExecuteResult } from "@/types/execute-result";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
+import { cookies, headers } from "next/headers";
 
 export async function execute<T>(
   call: () => Promise<T>,
@@ -26,7 +30,8 @@ export async function execute<T>(
       };
     }
     if (error instanceof ApiAuthError && !isPublic) {
-      redirect(LOGIN_URL);
+      await removeAccessTokenCookie();
+      redirectToLoginUrl();
     }
     throw error;
   }
@@ -40,8 +45,24 @@ export async function query<T>(
     return await call();
   } catch (error: unknown) {
     if (error instanceof ApiAuthError && !isPublic) {
-      redirect(LOGIN_URL);
+      await redirectToLoginUrl();
     }
     throw error;
   }
+}
+
+async function redirectToLoginUrl(): Promise<void> {
+  let loginUrl = LOGIN_URL;
+  // Get current path from headers set by middleware
+  const headerList = await headers();
+  const currentPath = headerList.get("x-current-path");
+  if (currentPath && currentPath.startsWith("/")) {
+    loginUrl += `?returnUrl=${encodeURIComponent(currentPath)}`;
+  }
+  redirect(loginUrl);
+}
+
+async function removeAccessTokenCookie(): Promise<void> {
+  const cookieStore = await cookies();
+  cookieStore.delete(ACCESS_TOKEN_COOKIE_NAME);
 }
