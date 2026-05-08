@@ -7,14 +7,14 @@ import { Search } from "lucide-react";
 interface SearchProps {
   placeholder: string;
   debounceDelay?: number;
-  initialValue?: string;
+  value?: string;
   onSearch: (query: string) => void;
 }
 
 export default function SearchInput({
   placeholder,
   debounceDelay = 500,
-  initialValue,
+  value: initialValue,
   onSearch,
 }: SearchProps) {
   const [search, setSearch] = useState(initialValue ?? "");
@@ -27,7 +27,7 @@ export default function SearchInput({
       return;
     }
     onSearch(debouncedSearch);
-  }, [debouncedSearch, onSearch]);
+  }, [debouncedSearch]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);

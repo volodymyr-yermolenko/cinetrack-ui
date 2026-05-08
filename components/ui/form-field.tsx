@@ -8,7 +8,7 @@ interface BaseFormFieldProps {
 }
 
 interface TextInputFormFieldProps extends BaseFormFieldProps {
-  fieldType: "text" | "number";
+  fieldType: "text" | "number" | "password";
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 

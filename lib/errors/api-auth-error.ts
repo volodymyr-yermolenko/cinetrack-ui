@@ -1,4 +1,4 @@
-export class ApiError extends Error {
+export class ApiAuthError extends Error {
   constructor(message: string) {
     super(message);
   }

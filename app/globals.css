@@ -45,13 +45,13 @@ dialog::backdrop {
 @layer components {
   /* Button common styles */
   .btn {
-    @apply py-2 px-4 rounded-lg transition-colors cursor-pointer whitespace-nowrap flex items-center justify-center disabled:bg-gray-400 disabled:cursor-auto;
+    @apply py-2 px-4 rounded-lg transition-colors cursor-pointer whitespace-nowrap flex items-center justify-center disabled:opacity-50 disabled:cursor-auto;
   }
   .btn-icon {
-    @apply p-2 rounded-lg transition-colors cursor-pointer;
+    @apply p-2 rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-auto;
   }
   .btn-icon-mini {
-    @apply p-1  rounded-lg transition-colors cursor-pointer;
+    @apply p-1 rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-auto;
   }
 
   /* Button sizes */
@@ -66,17 +66,36 @@ dialog::backdrop {
   .btn-primary {
     @apply bg-blue-600 hover:bg-blue-700 text-white;
   }
+  .btn-primary:disabled {
+    @apply bg-blue-600 text-white;
+  }
+
   .btn-secondary {
     @apply bg-gray-100 hover:bg-gray-200;
   }
+  .btn-secondary:disabled {
+    @apply bg-gray-100;
+  }
+
   .btn-alert {
     @apply bg-red-50 hover:bg-red-100 text-red-600;
   }
+  .btn-alert:disabled {
+    @apply bg-red-50 text-red-600;
+  }
+
   .btn-danger {
     @apply bg-red-600 hover:bg-red-700 text-white;
   }
+  .btn-danger {
+    @apply bg-red-600 text-white;
+  }
+
   .btn-ghost {
     @apply hover:bg-gray-300;
+  }
+  .btn-ghost:disabled {
+    @apply bg-transparent;
   }
 }
 
