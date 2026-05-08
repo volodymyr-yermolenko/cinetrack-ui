@@ -7,6 +7,7 @@ import { loginUserAction } from "../actions/login-user-action";
 import { Login } from "../types/login";
 import { LoginStatus } from "../types/login-status";
 import { useFormErrors } from "@/lib/hooks/use-form-errors";
+import FormErrors from "@/components/common/form-errors";
 
 interface LoginFormProps {
   returnUrl?: string;
@@ -104,15 +105,7 @@ export default function LoginForm({ returnUrl }: LoginFormProps) {
                 </div>
               )}
 
-            {formErrors && formErrors.length > 0 && (
-              <div className="mt-4">
-                {formErrors.map((error, index) => (
-                  <p key={index} className="text-red-500 text-sm">
-                    {error}
-                  </p>
-                ))}
-              </div>
-            )}
+            <FormErrors errors={formErrors} className="mt-4" />
           </form>
         </div>
       </div>

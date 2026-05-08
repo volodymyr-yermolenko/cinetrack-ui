@@ -16,6 +16,7 @@ import Select from "@/components/ui/select";
 import { mapToNumericSelectOptions } from "@/lib/utils/sys-utils";
 import { MOVIE_TYPE_MAP } from "@/constants/movies";
 import { useFormErrors } from "@/lib/hooks/use-form-errors";
+import FormErrors from "@/components/common/form-errors";
 
 interface MovieEditorProps {
   genres: Genre[];
@@ -234,15 +235,7 @@ export default function MovieEditor({ genres, movie }: MovieEditorProps) {
             )}
           </button>
 
-          {formErrors && formErrors.length > 0 && (
-            <div className="mt-4">
-              {formErrors.map((error, index) => (
-                <p key={index} className="text-red-500 text-sm">
-                  {error}
-                </p>
-              ))}
-            </div>
-          )}
+          <FormErrors errors={formErrors} className="mt-4" />
         </form>
       </div>
     </div>

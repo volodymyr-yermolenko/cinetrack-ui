@@ -21,6 +21,7 @@ import { WatchEntry } from "../types/watch-entry";
 import { updateWatchEntryAction } from "../actions/update-watch-entry-action";
 import WatchEntryMovieInfo from "./watch-entry-movie-info";
 import { useFormErrors } from "@/lib/hooks/use-form-errors";
+import FormErrors from "@/components/common/form-errors";
 
 interface WatchEntryEditorProps {
   movies: Movie[];
@@ -258,15 +259,7 @@ export default function WatchEntryEditor({
             )}
           </button>
 
-          {formErrors && formErrors.length > 0 && (
-            <div className="mt-4">
-              {formErrors.map((error, index) => (
-                <p key={index} className="text-red-500 text-sm">
-                  {error}
-                </p>
-              ))}
-            </div>
-          )}
+          <FormErrors errors={formErrors} className="mt-4" />
         </form>
       </div>
     </div>

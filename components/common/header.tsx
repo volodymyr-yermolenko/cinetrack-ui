@@ -25,6 +25,9 @@ export default function Header() {
           <li>
             <NavLink href={LOGIN_URL}>Sign in</NavLink>
           </li>
+          <li>
+            <NavLink href="/account/register">Sign up</NavLink>
+          </li>
         </ul>
       </nav>
     </div>
