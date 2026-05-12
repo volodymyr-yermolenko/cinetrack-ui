@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { Movie } from "../types/movie";
 import { SquarePen, Trash2 } from "lucide-react";
-import { MOVIE_TYPE_MAP } from "@/constants/movies";
+import { MOVIE_TYPE_MAP } from "@/constants";
 import Link from "next/link";
 import noImage from "@/public/no-image.jpg";
 import { startTransition, useActionState, useEffect, useState } from "react";

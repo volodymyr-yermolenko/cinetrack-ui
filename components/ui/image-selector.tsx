@@ -3,7 +3,7 @@ import {
   ACCEPTED_IMAGE_TYPES,
   MAX_IMAGE_SIZE,
   MAX_IMAGE_SIZE_MB,
-} from "@/constants/images";
+} from "@/constants";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import noImage from "@/public/no-image.jpg";

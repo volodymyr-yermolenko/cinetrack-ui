@@ -1,16 +1,12 @@
+import { cookies } from "next/headers";
 import CheckEmailInfo from "../components/check-email-info";
+import { REGISTRATION_EMAIL_COOKIE_NAME } from "../constants";
 
-interface CheckEmailPageProps {
-  searchParams: Promise<{
-    email?: string;
-  }>;
-}
+export default async function CheckEmailPage() {
+  const cookieStore = await cookies();
+  const registrationEmail = cookieStore.get(
+    REGISTRATION_EMAIL_COOKIE_NAME,
+  )?.value;
 
-export default async function CheckEmailPage({
-  searchParams,
-}: CheckEmailPageProps) {
-  const params = await searchParams;
-  const email = params.email;
-
-  return <CheckEmailInfo email={email} />;
+  return <CheckEmailInfo email={registrationEmail} />;
 }

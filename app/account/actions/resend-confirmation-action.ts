@@ -1,9 +1,9 @@
 "use server";
 
-import { EMAIL_REGEX } from "@/constants/email";
 import { execute } from "@/lib/utils/api-utils";
 import { ActionResult } from "@/types/action-result";
 import { ResendConfirmation } from "../api/resend-confirmation";
+import { EMAIL_REGEX } from "../constants";
 
 export async function resendConfirmationAction(
   prevState: ActionResult,

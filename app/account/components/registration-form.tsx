@@ -7,8 +7,8 @@ import { startTransition, useActionState, useEffect, useState } from "react";
 import { registerUserAction } from "../actions/register-user-action";
 import { RegistrationStatus } from "../types/registration-status";
 import { resendConfirmationAction } from "../actions/resend-confirmation-action";
-import { RESEND_CONFIRMATION_INTERVAL_SECONDS } from "../constants/timeouts";
 import FormErrors from "@/components/common/form-errors";
+import { RESEND_CONFIRMATION_INTERVAL_SECONDS } from "../constants";
 
 interface FormState {
   email: string;

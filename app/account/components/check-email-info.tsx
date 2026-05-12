@@ -4,7 +4,7 @@ import { startTransition, useActionState, useEffect, useState } from "react";
 import { resendConfirmationAction } from "../actions/resend-confirmation-action";
 import { LoaderCircle } from "lucide-react";
 import FormErrors from "@/components/common/form-errors";
-import { RESEND_CONFIRMATION_INTERVAL_SECONDS } from "../constants/timeouts";
+import { RESEND_CONFIRMATION_INTERVAL_SECONDS } from "../constants";
 
 interface CheckEmailInfoProps {
   email?: string;

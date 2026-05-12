@@ -7,7 +7,7 @@ import Link from "next/link";
 import { startTransition, useActionState, useMemo, useState } from "react";
 import { createWatchEntryAction } from "../actions/create-watch-entry-action";
 import { ViewingContext } from "../types/viewing-context";
-import { VIEWING_CONTEXT_MAP } from "@/constants/movies";
+import { VIEWING_CONTEXT_MAP } from "@/constants";
 import { DatePicker } from "react-datepicker";
 import {
   formatDateForApi,

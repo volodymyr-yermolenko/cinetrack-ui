@@ -14,7 +14,7 @@ import { updateMovieAction } from "../actions/update-movie-action";
 import { ImageSelector } from "@/components/ui/image-selector";
 import Select from "@/components/ui/select";
 import { mapToNumericSelectOptions } from "@/lib/utils/sys-utils";
-import { MOVIE_TYPE_MAP } from "@/constants/movies";
+import { MOVIE_TYPE_MAP } from "@/constants";
 import { useFormErrors } from "@/lib/hooks/use-form-errors";
 import FormErrors from "@/components/common/form-errors";
 

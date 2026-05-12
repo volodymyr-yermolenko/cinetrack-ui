@@ -1,9 +1,6 @@
 import { ApiClientError } from "../errors/api-client-error";
 import { ApiAuthError } from "../errors/api-auth-error";
-import {
-  ACCESS_TOKEN_COOKIE_NAME,
-  LOGIN_URL,
-} from "@/constants/authentication";
+import { ACCESS_TOKEN_COOKIE_NAME, LOGIN_URL } from "@/constants";
 import { redirect } from "next/navigation";
 import { ExecuteResult } from "@/types/execute-result";
 import { isRedirectError } from "next/dist/client/components/redirect-error";

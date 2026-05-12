@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { formatDateTime } from "@/lib/utils/date-utils";
 import { Rating } from "@/components/ui/rating";
-import { VIEWING_CONTEXT_MAP } from "@/constants/movies";
+import { VIEWING_CONTEXT_MAP } from "@/constants";
 import { startTransition, useActionState, useEffect, useState } from "react";
 import { deleteWatchEntryAction } from "../actions/delete-watch-entry-action";
 import ConfirmDialog from "@/components/ui/confirm-dialog";

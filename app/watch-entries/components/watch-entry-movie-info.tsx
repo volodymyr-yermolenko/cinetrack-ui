@@ -2,7 +2,7 @@ import { Movie } from "@/app/movies/types/movie";
 import Image from "next/image";
 import noImage from "@/public/no-image.jpg";
 import { formatGenreNames } from "@/lib/utils/movie-utils";
-import { MOVIE_TYPE_MAP } from "@/constants/movies";
+import { MOVIE_TYPE_MAP } from "@/constants";
 
 interface WatchEntryMovieInfoProps {
   movie: Movie;

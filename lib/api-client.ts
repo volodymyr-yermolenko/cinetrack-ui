@@ -1,7 +1,7 @@
-import { BASE_API_URL } from "@/constants/api";
 import { ApiClientError } from "./errors/api-client-error";
 import { ApiAuthError } from "./errors/api-auth-error";
 import { cookies } from "next/headers";
+import { BASE_API_URL } from "@/constants";
 
 export const apiClient = {
   async get<T>(

@@ -3,14 +3,14 @@ import {
   MOVIE_RELEASE_YEAR_MAX,
   MOVIE_RELEASE_YEAR_MIN,
   MOVIE_TITLE_MAX_LENGTH,
-} from "../constants/validation";
+} from "../constants";
 import { MovieType } from "../types/movie-type";
 import {
   ACCEPTED_IMAGE_EXTENSIONS,
   ACCEPTED_IMAGE_TYPES,
   MAX_IMAGE_SIZE,
   MAX_IMAGE_SIZE_MB,
-} from "@/constants/images";
+} from "@/constants";
 
 export function validateMovie(
   formData: FormData,
