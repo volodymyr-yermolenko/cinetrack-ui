@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { LOGIN_URL } from "./constants/authentication";
+import { ACCESS_TOKEN_COOKIE_NAME, LOGIN_URL } from "./constants";
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-current-path", request.nextUrl.pathname);
 
@@ -15,7 +15,7 @@ export function middleware(request: NextRequest) {
   }
 
   const cookies = request.cookies;
-  const accessToken = cookies.get("accessToken")?.value;
+  const accessToken = cookies.get(ACCESS_TOKEN_COOKIE_NAME)?.value;
 
   if (!accessToken) {
     const loginUrl = new URL(LOGIN_URL, request.url);
@@ -29,7 +29,7 @@ export function middleware(request: NextRequest) {
   });
 }
 
-// Ensure that the middleware runs for all routes under /movies and /watch-entries, but not for other routes like /account/login or API routes.
+// Apply this middleware to all routes under /movies and /watch-entries (the pages that require authentication)
 export const config = {
   matcher: ["/movies/:path*", "/watch-entries/:path*"],
 };

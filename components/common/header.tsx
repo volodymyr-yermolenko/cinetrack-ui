@@ -1,7 +1,7 @@
 import NavLink from "../ui/nav-link";
 import Link from "next/link";
 import { Film } from "lucide-react";
-import { LOGIN_URL } from "@/constants/authentication";
+import { LOGIN_URL } from "@/constants";
 
 export default function Header() {
   return (

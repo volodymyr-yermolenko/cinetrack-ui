@@ -1,8 +1,6 @@
 "use server";
 
 import { ActionResult } from "@/types/action-result";
-import { ENV } from "@/constants/env";
-import { EMAIL_REGEX } from "@/constants/email";
 import { formatZodFieldErrors } from "@/lib/utils/zod-utils";
 import { LoginUser } from "../api/login-user";
 import { redirect } from "next/navigation";
@@ -10,10 +8,8 @@ import z from "zod";
 import { LoginStatus } from "../types/login-status";
 import { cookies } from "next/headers";
 import { execute } from "@/lib/utils/api-utils";
-import {
-  ACCESS_TOKEN_COOKIE_MAX_AGE_MINUTES,
-  ACCESS_TOKEN_COOKIE_NAME,
-} from "@/constants/authentication";
+import { ACCESS_TOKEN_COOKIE_MAX_AGE_MINUTES, EMAIL_REGEX } from "../constants";
+import { ACCESS_TOKEN_COOKIE_NAME, ENV } from "@/constants";
 
 export async function loginUserAction(
   prevState: ActionResult<LoginStatus>,
