@@ -3,18 +3,32 @@
 import { FormField } from "@/components/ui/form-field";
 import { useFormErrors } from "@/lib/hooks/use-form-errors";
 import { LoaderCircle } from "lucide-react";
-import { startTransition, useActionState, useEffect, useState } from "react";
+import {
+  startTransition,
+  useActionState,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { registerUserAction } from "../actions/register-user-action";
 import { RegistrationStatus } from "../types/registration-status";
 import { resendConfirmationAction } from "../actions/resend-confirmation-action";
-import FormErrors from "@/components/common/form-errors";
 import { RESEND_CONFIRMATION_INTERVAL_SECONDS } from "../constants";
+import FormErrors from "@/components/common/form-errors";
 
 interface FormState {
   email: string;
   name: string;
   password: string;
   confirmPassword: string;
+}
+
+interface ResendConfirmationMessageParams {
+  isResendButtonVisible: boolean;
+  isResendComplete: boolean;
+  isResendButtonLocked: boolean;
+  email: string;
+  resendInterval: number;
 }
 
 type FieldName = keyof FormState;
@@ -28,11 +42,13 @@ export default function RegistrationForm() {
   });
   const { email, name, password } = formState;
 
-  const [showResendConfirmation, setShowResendConfirmation] = useState(false);
   const [isResendComplete, setIsResendComplete] = useState(false);
+  const [isResendButtonVisible, setIsResendButtonVisible] = useState(false);
+  const [isResendButtonLocked, setIsResendButtonLocked] = useState(false);
   const [resendInterval, setResendInterval] = useState(
     RESEND_CONFIRMATION_INTERVAL_SECONDS,
   );
+  const resendIntervalIdRef = useRef<NodeJS.Timeout | null>(null);
 
   const [actionState, formAction, isPending] = useActionState(
     registerUserAction,
@@ -48,27 +64,40 @@ export default function RegistrationForm() {
   );
 
   useEffect(() => {
-    const showResend =
+    if (
       actionState.success &&
-      actionState.data === RegistrationStatus.UserNotConfirmed;
-    setShowResendConfirmation(showResend);
-    setIsResendComplete(false);
+      actionState.data === RegistrationStatus.UserNotConfirmed
+    ) {
+      setIsResendButtonVisible(true);
+      setIsResendButtonLocked(false);
+      setIsResendComplete(false);
+    }
   }, [actionState]);
 
   useEffect(() => {
     if (resendActionState.success) {
       setIsResendComplete(true);
-      const intervalId = setInterval(() => {
+      setIsResendButtonLocked(true);
+
+      resendIntervalIdRef.current = setInterval(() => {
         setResendInterval((prev) => prev - 1);
       }, 1000);
-      return () => clearInterval(intervalId);
+
+      return () => {
+        if (resendIntervalIdRef.current) {
+          clearInterval(resendIntervalIdRef.current!);
+        }
+      };
     }
   }, [resendActionState]);
 
   useEffect(() => {
     if (resendInterval <= 0) {
-      setIsResendComplete(false);
       setResendInterval(RESEND_CONFIRMATION_INTERVAL_SECONDS);
+      setIsResendButtonLocked(false);
+      if (resendIntervalIdRef.current) {
+        clearInterval(resendIntervalIdRef.current!);
+      }
     }
   }, [resendInterval]);
 
@@ -91,8 +120,9 @@ export default function RegistrationForm() {
     setFormState((prevState) => ({ ...prevState, [name]: value }));
     markFieldAsChanged(name);
 
-    if (name === "email" && showResendConfirmation) {
-      setShowResendConfirmation(false);
+    if (name === "email" && isResendButtonVisible) {
+      setIsResendButtonVisible(false);
+      setIsResendButtonLocked(false);
       setIsResendComplete(false);
     }
   };
@@ -113,17 +143,13 @@ export default function RegistrationForm() {
     });
   };
 
-  const resendConfirmationContent = !isResendComplete ? (
-    <>
-      We found an account for <strong>{email}</strong> that hasn’t been
-      confirmed yet. Please check your mailbox or resend the confirmation email.
-    </>
-  ) : (
-    <>
-      Confirmation email has been resent! Please check your mailbox. You can
-      resend again after {resendInterval} seconds.
-    </>
-  );
+  const resendConfirmationMessage = getResendConfirmationMessage({
+    isResendButtonVisible,
+    isResendComplete,
+    isResendButtonLocked,
+    email,
+    resendInterval,
+  });
 
   return (
     <div className="flex items-center h-[700px]">
@@ -176,7 +202,7 @@ export default function RegistrationForm() {
               <button
                 className="btn btn-main btn-primary"
                 type="submit"
-                hidden={showResendConfirmation}
+                hidden={isResendButtonVisible}
                 disabled={isPending}
               >
                 {!isPending ? (
@@ -190,8 +216,8 @@ export default function RegistrationForm() {
               <button
                 type="button"
                 className="btn btn-main btn-secondary"
-                hidden={!showResendConfirmation}
-                disabled={isResendPending || isResendComplete}
+                hidden={!isResendButtonVisible}
+                disabled={isResendPending || isResendButtonLocked}
                 onClick={handleResendConfirmationClick}
               >
                 {!isResendPending ? (
@@ -211,9 +237,9 @@ export default function RegistrationForm() {
                   </p>
                 </div>
               )}
-            {showResendConfirmation && (
+            {resendConfirmationMessage && (
               <div className="mt-4">
-                <p className="text-sm">{resendConfirmationContent}</p>
+                <p className="text-sm">{resendConfirmationMessage}</p>
               </div>
             )}
             <FormErrors errors={formErrors} className="mt-4" />
@@ -223,4 +249,33 @@ export default function RegistrationForm() {
       </div>
     </div>
   );
+}
+
+function getResendConfirmationMessage(params: ResendConfirmationMessageParams) {
+  const {
+    isResendButtonVisible,
+    isResendComplete,
+    isResendButtonLocked,
+    email,
+    resendInterval,
+  } = params;
+
+  if (isResendButtonVisible && !isResendComplete) {
+    return (
+      <>
+        We found an account for <strong>{email}</strong> that hasn’t been
+        confirmed yet. Please check your mailbox or resend the confirmation
+        email.
+      </>
+    );
+  }
+  if (isResendComplete && isResendButtonLocked) {
+    return (
+      <>
+        Confirmation email has been resent! Please check your mailbox. You can
+        resend again after {resendInterval} seconds.
+      </>
+    );
+  }
+  return null;
 }

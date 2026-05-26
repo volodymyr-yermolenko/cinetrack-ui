@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ACCESS_TOKEN_COOKIE_NAME, LOGIN_URL } from "./constants";
+import { ACCESS_TOKEN_COOKIE, LOGIN_URL } from "./constants";
 
 export function proxy(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
@@ -15,7 +15,7 @@ export function proxy(request: NextRequest) {
   }
 
   const cookies = request.cookies;
-  const accessToken = cookies.get(ACCESS_TOKEN_COOKIE_NAME)?.value;
+  const accessToken = cookies.get(ACCESS_TOKEN_COOKIE)?.value;
 
   if (!accessToken) {
     const loginUrl = new URL(LOGIN_URL, request.url);

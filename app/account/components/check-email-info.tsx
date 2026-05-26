@@ -56,16 +56,21 @@ export default function CheckEmailInfo({ email }: CheckEmailInfoProps) {
         <div className="p-6 bg-white rounded-lg shadow">
           <h1 className="text-2xl font-bold mb-4">Check Your Email</h1>
           <p className="text-gray-700">
-            We have sent a confirmation email to your email address. Please
-            check your mailbox and click on the confirmation link to complete
-            your registration.
+            We have sent a confirmation email to your email address
+            {email && (
+              <>
+                {" "}
+                <strong>{email}</strong>
+              </>
+            )}
+            . Please check your mailbox and click on the confirmation link to
+            complete your registration.
           </p>
           {email && (
             <div>
               <p className="text-gray-700 mt-4">
                 If you haven’t received the email, please check your spam folder
-                or click the button below to resend the confirmation email to{" "}
-                <strong>{email}</strong>.
+                or click the button below to resend the confirmation email.
               </p>
               <div className="mt-6">
                 <button

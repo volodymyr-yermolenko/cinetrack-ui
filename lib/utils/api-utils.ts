@@ -1,6 +1,6 @@
 import { ApiClientError } from "../errors/api-client-error";
 import { ApiAuthError } from "../errors/api-auth-error";
-import { ACCESS_TOKEN_COOKIE_NAME, LOGIN_URL } from "@/constants";
+import { ACCESS_TOKEN_COOKIE, LOGIN_URL } from "@/constants";
 import { redirect } from "next/navigation";
 import { ExecuteResult } from "@/types/execute-result";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
@@ -61,5 +61,5 @@ async function redirectToLoginUrl(): Promise<void> {
 
 async function removeAccessTokenCookie(): Promise<void> {
   const cookieStore = await cookies();
-  cookieStore.delete(ACCESS_TOKEN_COOKIE_NAME);
+  cookieStore.delete(ACCESS_TOKEN_COOKIE);
 }

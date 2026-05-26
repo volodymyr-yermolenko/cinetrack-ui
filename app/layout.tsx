@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "react-datepicker/dist/react-datepicker.css";
 import "./globals.css";
 import Header from "../components/common/header";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "Cine Track App",
@@ -24,6 +25,7 @@ export default function RootLayout({
         <main className="flex-1 bg-gray-50">
           <div className="container">{children}</div>
         </main>
+        <Toaster position="bottom-right" richColors />
       </body>
     </html>
   );
