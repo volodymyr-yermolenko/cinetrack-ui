@@ -3,13 +3,13 @@ import { EmailConfirmationError } from "../../components/email-confirmation-erro
 import { EmailConfirmationErrorReason } from "../../types/email-confirmation-error-reason";
 import { REGISTRATION_EMAIL_COOKIE } from "../../constants";
 
-interface ConfirmEmailPageProps {
+interface ConfirmEmailErrorPageProps {
   searchParams: Promise<{ reason: EmailConfirmationErrorReason }>;
 }
 
-export default async function ConfirmEmailPage({
+export default async function ConfirmEmailErrorPage({
   searchParams,
-}: ConfirmEmailPageProps) {
+}: ConfirmEmailErrorPageProps) {
   const { reason } = await searchParams;
   const cookieStore = await cookies();
   const registrationEmail = cookieStore.get(REGISTRATION_EMAIL_COOKIE)?.value;
