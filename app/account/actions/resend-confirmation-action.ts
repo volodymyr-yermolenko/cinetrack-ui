@@ -23,7 +23,7 @@ export async function resendConfirmationAction(
     };
   }
 
-  const result = await execute(() => ResendConfirmation({ email }), true);
+  const result = await execute(() => ResendConfirmation({ email }));
   if (!result.success) {
     return {
       success: false,

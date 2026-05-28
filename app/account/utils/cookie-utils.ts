@@ -24,3 +24,8 @@ export async function setRegistrationEmailCookie(email: string) {
     maxAge: REGISTRATION_EMAIL_COOKIE_AGE_MINUTES * 60,
   });
 }
+
+export async function removeAccessTokenCookie(): Promise<void> {
+  const cookieStore = await cookies();
+  cookieStore.delete(ACCESS_TOKEN_COOKIE);
+}

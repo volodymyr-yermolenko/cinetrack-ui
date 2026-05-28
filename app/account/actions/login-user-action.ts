@@ -26,7 +26,7 @@ export async function loginUserAction(
 
   const { returnUrl, ...loginData } = validatedData.data;
 
-  const result = await execute(() => LoginUser({ ...loginData }), true);
+  const result = await execute(() => LoginUser({ ...loginData }));
   if (!result.success) {
     return {
       success: false,

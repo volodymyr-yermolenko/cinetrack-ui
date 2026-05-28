@@ -1,5 +1,4 @@
-import { redirect } from "next/navigation";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { confirmEmail } from "../api/confirm-email";
 import { EmailConfirmationStatus } from "../types/email.confirmation-status";
 import { CONFIRM_EMAIL_ERROR_URL } from "../constants";
@@ -15,7 +14,10 @@ export async function GET(request: NextRequest) {
   const token = searchParams.get("token");
 
   if (!token) {
-    redirectToErrorPage(EmailConfirmationErrorReason.NoToken);
+    return createErrorRedirectResponse(
+      request,
+      EmailConfirmationErrorReason.NoToken,
+    );
   }
 
   const confirmResponse = await confirmEmail(token);
@@ -23,15 +25,39 @@ export async function GET(request: NextRequest) {
   switch (confirmResponse.status) {
     case EmailConfirmationStatus.Success:
       await setAccessTokenCookie(confirmResponse.accessToken!);
-      redirect(`/?${REGISTRATION_CONFIRMED_PARAM}=true`);
+      return createRedirectResponse(
+        request,
+        `/?${REGISTRATION_CONFIRMED_PARAM}=true`,
+      );
     case EmailConfirmationStatus.InvalidToken:
-      redirectToErrorPage(EmailConfirmationErrorReason.InvalidToken);
+      return createErrorRedirectResponse(
+        request,
+        EmailConfirmationErrorReason.InvalidToken,
+      );
     case EmailConfirmationStatus.TokenExpired:
       await setRegistrationEmailCookie(confirmResponse.email!);
-      redirectToErrorPage(EmailConfirmationErrorReason.TokenExpired);
+      return createErrorRedirectResponse(
+        request,
+        EmailConfirmationErrorReason.TokenExpired,
+      );
   }
 }
 
-function redirectToErrorPage(reason: EmailConfirmationErrorReason): never {
-  redirect(`${CONFIRM_EMAIL_ERROR_URL}?reason=${reason}`);
+function createErrorRedirectResponse(
+  request: NextRequest,
+  reason: EmailConfirmationErrorReason,
+): NextResponse<unknown> {
+  return createRedirectResponse(
+    request,
+    `${CONFIRM_EMAIL_ERROR_URL}?reason=${reason}`,
+  );
+}
+
+function createRedirectResponse(
+  request: NextRequest,
+  targetPath: string,
+): NextResponse<unknown> {
+  const redirectUrl = new URL(targetPath, request.url);
+  const response = NextResponse.redirect(redirectUrl);
+  return response;
 }

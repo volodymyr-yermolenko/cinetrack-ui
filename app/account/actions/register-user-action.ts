@@ -29,10 +29,7 @@ export async function registerUserAction(
     };
   }
 
-  const result = await execute(
-    () => RegisterUser({ ...validatedData.data }),
-    true,
-  );
+  const result = await execute(() => RegisterUser({ ...validatedData.data }));
   if (!result.success) {
     return {
       success: false,

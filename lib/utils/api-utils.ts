@@ -1,14 +1,15 @@
 import { ApiClientError } from "../errors/api-client-error";
 import { ApiAuthError } from "../errors/api-auth-error";
-import { ACCESS_TOKEN_COOKIE, LOGIN_URL } from "@/constants";
+import { LOGIN_URL, LOGOUT_URL } from "@/constants";
 import { redirect } from "next/navigation";
 import { ExecuteResult } from "@/types/execute-result";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
-import { cookies, headers } from "next/headers";
+import { headers } from "next/headers";
+import { removeAccessTokenCookie } from "@/app/account/utils/cookie-utils";
 
+// Used for API calls inside server actions (mutation flow)
 export async function execute<T>(
   call: () => Promise<T>,
-  isPublic: boolean = false,
 ): Promise<ExecuteResult<T>> {
   try {
     const result = await call();
@@ -26,40 +27,45 @@ export async function execute<T>(
         errors: [error.message],
       };
     }
-    if (error instanceof ApiAuthError && !isPublic) {
+    if (error instanceof ApiAuthError) {
       await removeAccessTokenCookie();
-      await redirectToLoginUrl();
+      await redirectToLoginPage();
     }
     throw error;
   }
 }
 
-export async function query<T>(
-  call: () => Promise<T>,
-  isPublic: boolean = false,
-): Promise<T> {
+// Used for API calls during server component rendering (query flow)
+export async function query<T>(call: () => Promise<T>): Promise<T> {
   try {
     return await call();
   } catch (error: unknown) {
-    if (error instanceof ApiAuthError && !isPublic) {
-      await redirectToLoginUrl();
+    if (error instanceof ApiAuthError) {
+      await redirectToLogoutRoute();
     }
     throw error;
   }
 }
 
-async function redirectToLoginUrl(): Promise<void> {
+async function redirectToLoginPage(): Promise<never> {
   let loginUrl = LOGIN_URL;
-  // Get current path from headers set by middleware
-  const headerList = await headers();
-  const currentPath = headerList.get("x-current-path");
+  const currentPath = await getCurrentPath();
   if (currentPath && currentPath.startsWith("/")) {
     loginUrl += `?returnUrl=${encodeURIComponent(currentPath)}`;
   }
   redirect(loginUrl);
 }
 
-async function removeAccessTokenCookie(): Promise<void> {
-  const cookieStore = await cookies();
-  cookieStore.delete(ACCESS_TOKEN_COOKIE);
+async function redirectToLogoutRoute(): Promise<never> {
+  const currentPath = await getCurrentPath();
+  let logoutUrl = LOGOUT_URL;
+  if (currentPath && currentPath.startsWith("/")) {
+    logoutUrl += `?returnUrl=${encodeURIComponent(currentPath)}`;
+  }
+  redirect(logoutUrl);
+}
+
+async function getCurrentPath(): Promise<string | null> {
+  const headerList = await headers();
+  return headerList.get("x-current-path");
 }
