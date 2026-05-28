@@ -28,7 +28,7 @@ export async function execute<T>(
     }
     if (error instanceof ApiAuthError && !isPublic) {
       await removeAccessTokenCookie();
-      redirectToLoginUrl();
+      await redirectToLoginUrl();
     }
     throw error;
   }

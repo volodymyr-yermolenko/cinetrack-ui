@@ -14,7 +14,9 @@ export default function NavLink({ href, children }: NavLinkProps) {
   const isActive =
     pathname === href || (pathname.startsWith(href) && href !== "/");
 
-  const activeClasses = isActive ? "text-blue-600 font-[550]" : "text-gray-700";
+  const activeClasses = isActive
+    ? "text-blue-600 font-medium"
+    : "text-gray-700";
   return (
     <Link
       href={href}

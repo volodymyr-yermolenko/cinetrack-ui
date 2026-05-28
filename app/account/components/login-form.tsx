@@ -2,12 +2,12 @@
 
 import { FormField } from "@/components/ui/form-field";
 import { LoaderCircle } from "lucide-react";
-import { startTransition, useActionState, useState } from "react";
+import { startTransition, useActionState, useEffect, useState } from "react";
 import { loginUserAction } from "../actions/login-user-action";
-import { Login } from "../types/login";
 import { LoginStatus } from "../types/login-status";
 import { useFormErrors } from "@/lib/hooks/use-form-errors";
 import FormErrors from "@/components/common/form-errors";
+import ResendEmailConfirmation from "./resend-email-confirmation";
 
 interface LoginFormProps {
   returnUrl?: string;
@@ -18,7 +18,7 @@ interface FormState {
   password: string;
 }
 
-type FieldName = keyof Login;
+type FieldName = keyof FormState;
 
 export default function LoginForm({ returnUrl }: LoginFormProps) {
   const [formState, setFormState] = useState<FormState>({
@@ -27,9 +27,21 @@ export default function LoginForm({ returnUrl }: LoginFormProps) {
   });
   const { email, password } = formState;
 
+  const [isResendConfirmationVisible, setIsResendConfirmationVisible] =
+    useState(false);
+
   const [actionState, formAction, isPending] = useActionState(loginUserAction, {
     success: false,
   });
+
+  useEffect(() => {
+    if (
+      actionState.success &&
+      actionState.data === LoginStatus.EmailNotConfirmed
+    ) {
+      setIsResendConfirmationVisible(true);
+    }
+  }, [actionState]);
 
   const { getFieldError, getFormErrors, markFieldAsChanged } =
     useFormErrors<FieldName>(actionState);
@@ -43,6 +55,10 @@ export default function LoginForm({ returnUrl }: LoginFormProps) {
     const value = e.target.value;
     setFormState((prevState) => ({ ...prevState, [name]: value }));
     markFieldAsChanged(name);
+
+    if (name === "email" && isResendConfirmationVisible) {
+      setIsResendConfirmationVisible(false);
+    }
   };
 
   const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
@@ -85,26 +101,37 @@ export default function LoginForm({ returnUrl }: LoginFormProps) {
               />
             </div>
             <hr className="border-gray-300 my-4"></hr>
-
-            <button
-              className="btn btn-main btn-primary"
-              type="submit"
-              disabled={isPending}
-            >
-              {!isPending ? (
-                "Sign In"
-              ) : (
-                <LoaderCircle className="mx-2 animate-spin" />
+            <div>
+              {!isResendConfirmationVisible && (
+                <button
+                  className="btn btn-main btn-primary"
+                  type="submit"
+                  disabled={isPending}
+                >
+                  {!isPending ? (
+                    "Sign In"
+                  ) : (
+                    <LoaderCircle className="mx-2 animate-spin" />
+                  )}
+                </button>
               )}
-            </button>
+              {isResendConfirmationVisible && (
+                <ResendEmailConfirmation
+                  email={email}
+                  showTitleMessage={true}
+                />
+              )}
+            </div>
 
+            {/* Messages */}
             {actionState.success &&
               actionState.data === LoginStatus.InvalidCredentials && (
                 <div className="mt-4">
-                  <p className="text-red-500 text-sm">Invalid Credentials</p>
+                  <p className="text-red-500 text-sm">
+                    Invalid email or password
+                  </p>
                 </div>
               )}
-
             <FormErrors errors={formErrors} className="mt-4" />
           </form>
         </div>
