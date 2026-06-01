@@ -18,15 +18,20 @@ export async function execute<T>(
       data: result,
     };
   } catch (error: unknown) {
+    // If it's an internal redirect error (when calling redirect method in server actions),
+    // just throw it to let Next.js handle the redirection
     if (isRedirectError(error)) {
       throw error;
     }
+
     if (error instanceof ApiClientError) {
       return {
         success: false,
         errors: [error.message],
       };
     }
+    // If we get a 401 error from the API (meaning the access token is invalid or expired),
+    // we should remove the invalid token cookie and redirect to login page
     if (error instanceof ApiAuthError) {
       await removeAccessTokenCookie();
       await redirectToLoginPage();
@@ -40,6 +45,9 @@ export async function query<T>(call: () => Promise<T>): Promise<T> {
   try {
     return await call();
   } catch (error: unknown) {
+    // If we get a 401 error from the API (meaning the access token is invalid or expired),
+    // we should remove the invalid token cookie and redirect to login page
+    // (by calling Logout API route, since we can't remove cookies directly during server component rendering)
     if (error instanceof ApiAuthError) {
       await redirectToLogoutRoute();
     }

@@ -65,13 +65,14 @@ async function request<T>(path: string, params: RequestParams): Promise<T> {
 
   const cookieStore = await cookies();
   const accessToken = cookieStore.get(ACCESS_TOKEN_COOKIE)?.value;
-  if (accessToken) {
-    options.headers = {
-      ...options.headers,
-      Authorization: `Bearer ${accessToken}`,
-    };
-  }
-  const response = await fetch(`${BASE_API_URL}${path}`, options);
+  const headers = {
+    ...options.headers,
+    ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+  };
+  const response = await fetch(`${BASE_API_URL}${path}`, {
+    ...options,
+    headers,
+  });
   const data = await handleResponse(response, defaultErrorMessage);
   return data as T;
 }

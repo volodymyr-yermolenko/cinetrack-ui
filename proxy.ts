@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { ACCESS_TOKEN_COOKIE, LOGIN_URL } from "./constants";
 
 export function proxy(request: NextRequest) {
+  // Add the current path to the request headers so that it can be passed later to the login page as a returnUrl
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-current-path", request.nextUrl.pathname);
 

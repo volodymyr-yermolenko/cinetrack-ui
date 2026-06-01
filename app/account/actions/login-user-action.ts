@@ -9,6 +9,7 @@ import { LoginStatus } from "../types/login-status";
 import { execute } from "@/lib/utils/api-utils";
 import { EMAIL_REGEX } from "../constants";
 import { setAccessTokenCookie } from "../utils/cookie-utils";
+import { revalidatePath } from "next/cache";
 
 export async function loginUserAction(
   prevState: ActionResult<LoginStatus>,
@@ -48,6 +49,7 @@ export async function loginUserAction(
     // On successful login we redirect and do not return a result
     await setAccessTokenCookie(loginResponse.accessToken);
     const redirectUrl = returnUrl?.startsWith("/") ? returnUrl : "/";
+    revalidatePath("/", "layout");
     redirect(redirectUrl);
   } else {
     return {

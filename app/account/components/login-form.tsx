@@ -109,7 +109,7 @@ export default function LoginForm({ returnUrl }: LoginFormProps) {
                   disabled={isPending}
                 >
                   {!isPending ? (
-                    "Sign In"
+                    "Log In"
                   ) : (
                     <LoaderCircle className="mx-2 animate-spin" />
                   )}

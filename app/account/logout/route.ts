@@ -10,6 +10,5 @@ export async function GET(request: NextRequest) {
   loginUrl.search = request.nextUrl.searchParams.toString();
 
   const response = NextResponse.redirect(loginUrl);
-  response.headers.set("x-middleware-cache", "no-cache");
   return response;
 }
