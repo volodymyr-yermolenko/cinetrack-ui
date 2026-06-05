@@ -11,11 +11,9 @@ import {
   PASSWORD_REGEX,
   USER_NAME_MAX_LENGTH,
   CHECK_EMAIL_URL,
-  REGISTRATION_EMAIL_COOKIE_MAX_AGE_MINUTES,
-  REGISTRATION_EMAIL_COOKIE_NAME,
 } from "../constants";
 import { RegistrationStatus } from "../types/registration-status";
-import { cookies } from "next/headers";
+import { setRegistrationEmailCookie } from "../utils/cookie-utils";
 
 export async function registerUserAction(
   prevState: ActionResult<RegistrationStatus>,
@@ -31,10 +29,7 @@ export async function registerUserAction(
     };
   }
 
-  const result = await execute(
-    () => RegisterUser({ ...validatedData.data }),
-    true,
-  );
+  const result = await execute(() => RegisterUser({ ...validatedData.data }));
   if (!result.success) {
     return {
       success: false,
@@ -50,7 +45,7 @@ export async function registerUserAction(
   }
 
   if (registrationResponse.status === RegistrationStatus.Success) {
-    await setCheckEmailCookie(validatedData.data.email);
+    await setRegistrationEmailCookie(validatedData.data.email);
     redirect(CHECK_EMAIL_URL);
   } else {
     return {
@@ -58,14 +53,6 @@ export async function registerUserAction(
       data: registrationResponse.status,
     };
   }
-}
-
-async function setCheckEmailCookie(email: string) {
-  const cookieStore = await cookies();
-  cookieStore.set(REGISTRATION_EMAIL_COOKIE_NAME, email, {
-    maxAge: REGISTRATION_EMAIL_COOKIE_MAX_AGE_MINUTES * 60,
-    sameSite: "lax",
-  });
 }
 
 function validateRegistration(

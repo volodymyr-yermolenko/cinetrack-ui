@@ -1,1 +1,2 @@
-export const ACCESS_TOKEN_COOKIE_NAME = "accessToken";
+export const ACCESS_TOKEN_COOKIE = "accessToken";
+export const REGISTRATION_CONFIRMED_PARAM = "registrationConfirmed";

@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ACCESS_TOKEN_COOKIE_NAME, LOGIN_URL } from "./constants";
+import { ACCESS_TOKEN_COOKIE, LOGIN_URL } from "./constants";
 
 export function proxy(request: NextRequest) {
+  // Add the current path to the request headers so that it can be passed later to the login page as a returnUrl
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-current-path", request.nextUrl.pathname);
 
-  // Allow action requests pass through without authentication check (it will be handled in the action during the API call)
+  // If it's an action request, let it through without authentication check, it will be handled in the action (method "execute")
   if (request.headers.get("next-action")) {
     return NextResponse.next({
       request: {
@@ -14,8 +15,9 @@ export function proxy(request: NextRequest) {
     });
   }
 
+  // For other requests (loading pages), check for access token cookie and redirect to login if not present
   const cookies = request.cookies;
-  const accessToken = cookies.get(ACCESS_TOKEN_COOKIE_NAME)?.value;
+  const accessToken = cookies.get(ACCESS_TOKEN_COOKIE)?.value;
 
   if (!accessToken) {
     const loginUrl = new URL(LOGIN_URL, request.url);
@@ -29,7 +31,7 @@ export function proxy(request: NextRequest) {
   });
 }
 
-// Apply this middleware to all routes under /movies and /watch-entries (the pages that require authentication)
+// Apply this middleware to the following routes (the pages requiring authentication)
 export const config = {
   matcher: ["/movies/:path*", "/watch-entries/:path*"],
 };

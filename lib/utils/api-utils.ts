@@ -1,14 +1,14 @@
 import { ApiClientError } from "../errors/api-client-error";
 import { ApiAuthError } from "../errors/api-auth-error";
-import { ACCESS_TOKEN_COOKIE_NAME, LOGIN_URL } from "@/constants";
 import { redirect } from "next/navigation";
 import { ExecuteResult } from "@/types/execute-result";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
-import { cookies, headers } from "next/headers";
+import { headers } from "next/headers";
+import { getLoginUrl, LoginUrlParams } from "@/app/account/utils/url-utils";
 
+// Used for API calls inside server actions (mutation flow)
 export async function execute<T>(
   call: () => Promise<T>,
-  isPublic: boolean = false,
 ): Promise<ExecuteResult<T>> {
   try {
     const result = await call();
@@ -17,49 +17,53 @@ export async function execute<T>(
       data: result,
     };
   } catch (error: unknown) {
+    // If it's an internal redirect error (when calling redirect method in server actions),
+    // just throw it to let Next.js handle the redirection
     if (isRedirectError(error)) {
       throw error;
     }
+
     if (error instanceof ApiClientError) {
       return {
         success: false,
         errors: [error.message],
       };
     }
-    if (error instanceof ApiAuthError && !isPublic) {
-      await removeAccessTokenCookie();
-      redirectToLoginUrl();
+    // If we get a 401 error from the API (the access token is invalid or expired),
+    // we should redirect to login page
+    if (error instanceof ApiAuthError) {
+      await redirectToLoginPage();
     }
     throw error;
   }
 }
 
-export async function query<T>(
-  call: () => Promise<T>,
-  isPublic: boolean = false,
-): Promise<T> {
+// Used for API calls during server component rendering (query flow)
+export async function query<T>(call: () => Promise<T>): Promise<T> {
   try {
     return await call();
   } catch (error: unknown) {
-    if (error instanceof ApiAuthError && !isPublic) {
-      await redirectToLoginUrl();
+    // If we get a 401 error from the API (the access token is invalid or expired),
+    // we should redirect to login page
+    if (error instanceof ApiAuthError) {
+      await redirectToLoginPage();
     }
     throw error;
   }
 }
 
-async function redirectToLoginUrl(): Promise<void> {
-  let loginUrl = LOGIN_URL;
-  // Get current path from headers set by middleware
-  const headerList = await headers();
-  const currentPath = headerList.get("x-current-path");
-  if (currentPath && currentPath.startsWith("/")) {
-    loginUrl += `?returnUrl=${encodeURIComponent(currentPath)}`;
-  }
+async function redirectToLoginPage(): Promise<never> {
+  const currentPath = await getCurrentPath();
+  const loginParams: LoginUrlParams = {
+    isAuthError: true,
+    returnUrl:
+      currentPath && currentPath.startsWith("/") ? currentPath : undefined,
+  };
+  const loginUrl = getLoginUrl(loginParams);
   redirect(loginUrl);
 }
 
-async function removeAccessTokenCookie(): Promise<void> {
-  const cookieStore = await cookies();
-  cookieStore.delete(ACCESS_TOKEN_COOKIE_NAME);
+async function getCurrentPath(): Promise<string | null> {
+  const headerList = await headers();
+  return headerList.get("x-current-path");
 }

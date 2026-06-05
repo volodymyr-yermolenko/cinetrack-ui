@@ -6,10 +6,10 @@ import { LoginUser } from "../api/login-user";
 import { redirect } from "next/navigation";
 import z from "zod";
 import { LoginStatus } from "../types/login-status";
-import { cookies } from "next/headers";
 import { execute } from "@/lib/utils/api-utils";
-import { ACCESS_TOKEN_COOKIE_MAX_AGE_MINUTES, EMAIL_REGEX } from "../constants";
-import { ACCESS_TOKEN_COOKIE_NAME, ENV } from "@/constants";
+import { EMAIL_REGEX } from "../constants";
+import { setAccessTokenCookie } from "../utils/cookie-utils";
+import { revalidatePath } from "next/cache";
 
 export async function loginUserAction(
   prevState: ActionResult<LoginStatus>,
@@ -27,7 +27,7 @@ export async function loginUserAction(
 
   const { returnUrl, ...loginData } = validatedData.data;
 
-  const result = await execute(() => LoginUser({ ...loginData }), true);
+  const result = await execute(() => LoginUser({ ...loginData }));
   if (!result.success) {
     return {
       success: false,
@@ -49,6 +49,7 @@ export async function loginUserAction(
     // On successful login we redirect and do not return a result
     await setAccessTokenCookie(loginResponse.accessToken);
     const redirectUrl = returnUrl?.startsWith("/") ? returnUrl : "/";
+    revalidatePath("/", "layout");
     redirect(redirectUrl);
   } else {
     return {
@@ -56,16 +57,6 @@ export async function loginUserAction(
       data: loginResponse.status,
     };
   }
-}
-
-async function setAccessTokenCookie(token: string) {
-  const cookieStore = await cookies();
-  cookieStore.set(ACCESS_TOKEN_COOKIE_NAME, token, {
-    httpOnly: true,
-    secure: ENV.isProd,
-    sameSite: "lax",
-    maxAge: ACCESS_TOKEN_COOKIE_MAX_AGE_MINUTES * 60,
-  });
 }
 
 function validateLogin(formData: FormData): z.ZodSafeParseResult<LoginInput> {

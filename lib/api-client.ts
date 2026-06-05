@@ -1,7 +1,7 @@
 import { ApiClientError } from "./errors/api-client-error";
 import { ApiAuthError } from "./errors/api-auth-error";
 import { cookies } from "next/headers";
-import { BASE_API_URL } from "@/constants";
+import { ACCESS_TOKEN_COOKIE, BASE_API_URL } from "@/constants";
 
 export const apiClient = {
   async get<T>(
@@ -64,14 +64,15 @@ async function request<T>(path: string, params: RequestParams): Promise<T> {
   const { options, defaultErrorMessage } = params;
 
   const cookieStore = await cookies();
-  const accessToken = cookieStore.get("accessToken")?.value;
-  if (accessToken) {
-    options.headers = {
-      ...options.headers,
-      Authorization: `Bearer ${accessToken}`,
-    };
-  }
-  const response = await fetch(`${BASE_API_URL}${path}`, options);
+  const accessToken = cookieStore.get(ACCESS_TOKEN_COOKIE)?.value;
+  const headers = {
+    ...options.headers,
+    ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+  };
+  const response = await fetch(`${BASE_API_URL}${path}`, {
+    ...options,
+    headers,
+  });
   const data = await handleResponse(response, defaultErrorMessage);
   return data as T;
 }
