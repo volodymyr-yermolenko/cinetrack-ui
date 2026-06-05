@@ -8,9 +8,13 @@ import { LoginStatus } from "../types/login-status";
 import { useFormErrors } from "@/lib/hooks/use-form-errors";
 import FormErrors from "@/components/common/form-errors";
 import ResendEmailConfirmation from "./resend-email-confirmation";
+import { logoutUserAction } from "../actions/logout-user-action";
+import { useRouter } from "next/navigation";
+import { getLoginUrl } from "../utils/url-utils";
 
 interface LoginFormProps {
   returnUrl?: string;
+  isAuthError?: boolean;
 }
 
 interface FormState {
@@ -20,7 +24,8 @@ interface FormState {
 
 type FieldName = keyof FormState;
 
-export default function LoginForm({ returnUrl }: LoginFormProps) {
+export default function LoginForm({ returnUrl, isAuthError }: LoginFormProps) {
+  const router = useRouter();
   const [formState, setFormState] = useState<FormState>({
     email: "",
     password: "",
@@ -42,6 +47,20 @@ export default function LoginForm({ returnUrl }: LoginFormProps) {
       setIsResendConfirmationVisible(true);
     }
   }, [actionState]);
+
+  useEffect(() => {
+    // If the user was redirected to this page due to an authentication error,
+    // we should log them out to clear invalid access token and redirect to this page again
+    // without isAuthError flag to avoid infinite loop
+    if (isAuthError) {
+      async function logoutAndRefresh() {
+        await logoutUserAction(false);
+        const replacedUrl = getLoginUrl({ returnUrl });
+        router.replace(replacedUrl);
+      }
+      logoutAndRefresh();
+    }
+  }, [isAuthError]);
 
   const { getFieldError, getFormErrors, markFieldAsChanged } =
     useFormErrors<FieldName>(actionState);

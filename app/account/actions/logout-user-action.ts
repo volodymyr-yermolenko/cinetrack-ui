@@ -1,12 +1,15 @@
 "use server";
 
-import { ActionResult } from "@/types/action-result";
 import { removeAccessTokenCookie } from "../utils/cookie-utils";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
-export async function logoutUserAction(): Promise<ActionResult> {
+export async function logoutUserAction(
+  redirectToMainPage: boolean = true,
+): Promise<void> {
   await removeAccessTokenCookie();
   revalidatePath("/", "layout");
-  redirect("/");
+  if (redirectToMainPage) {
+    redirect("/");
+  }
 }

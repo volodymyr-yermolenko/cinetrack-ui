@@ -7,6 +7,7 @@ import { cookies } from "next/headers";
 import { ACCESS_TOKEN_COOKIE } from "@/constants";
 import { getCurrentUser } from "./account/api/get-current-user";
 import { User } from "./account/types/user";
+import { ApiAuthError } from "@/lib/errors/api-auth-error";
 
 export const metadata: Metadata = {
   title: "Cine Track App",
@@ -18,7 +19,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  console.log("Render layout");
   const currentUser = await getOptionalCurrentUser();
   return (
     <html lang="en">
@@ -45,8 +45,10 @@ async function getOptionalCurrentUser(): Promise<User | null> {
   }
   try {
     return await getCurrentUser();
-  } catch (error) {
-    console.error("Failed to fetch current user:", error);
-    return null;
+  } catch (error: unknown) {
+    if (error instanceof ApiAuthError) {
+      return null;
+    }
+    throw error;
   }
 }

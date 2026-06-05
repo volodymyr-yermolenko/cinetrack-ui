@@ -32,7 +32,7 @@ export function DropDownButton({ name, options }: DropDownButtonProps) {
   return (
     <div className="relative w-max">
       <button
-        className="btn btn-small btn-secondary"
+        className="py-1 px-4 flex items-center justify-center text-gray-700 hover:text-blue-600 border-gray-300 hover:border-blue-500 border rounded-lg transition-colors cursor-pointer"
         type="button"
         onClick={handleButtonClick}
       >
@@ -42,7 +42,7 @@ export function DropDownButton({ name, options }: DropDownButtonProps) {
       </button>
       {isOpen && (
         <div
-          className="absolute top-11 left-0 min-w-full whitespace-nowrap bg-white z-1000 border border-gray-200 rounded-lg shadow"
+          className="absolute top-9 left-0 min-w-full whitespace-nowrap bg-white z-1000 border border-gray-200 rounded-lg shadow"
           ref={panelRef}
         >
           <ul>
@@ -62,7 +62,7 @@ export function DropDownButton({ name, options }: DropDownButtonProps) {
                 ) : (
                   <Link
                     href={option.href}
-                    className="block px-4 py-2 hover:bg-gray-100 w-full text-left"
+                    className="block px-4 py-2 hover:bg-gray-100 w-full text-left cursor-pointer"
                     onClick={() => setIsOpen(false)}
                   >
                     {option.label}
