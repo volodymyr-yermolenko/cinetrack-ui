@@ -11,7 +11,7 @@ export default async function CheckEmailPage() {
       <div className="w-[500px] mx-auto">
         <div className="p-6 bg-white rounded-lg shadow">
           <h1 className="text-2xl font-bold mb-4">Check Your Email</h1>
-          <p className="text-gray-700">
+          <p>
             We have sent a confirmation email to your email address
             {email && (
               <>
@@ -24,7 +24,7 @@ export default async function CheckEmailPage() {
           </p>
           {email && (
             <div>
-              <p className="text-gray-700 mt-4">
+              <p className="mt-4">
                 If you haven’t received the email, please check your spam folder
                 or click the button below to resend the confirmation email.
               </p>

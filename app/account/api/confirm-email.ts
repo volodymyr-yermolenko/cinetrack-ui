@@ -1,3 +1,5 @@
+"use server";
+
 import { apiClient } from "@/lib/api-client";
 import { EmailConfirmationResponse } from "../types/email-confirmation-response";
 

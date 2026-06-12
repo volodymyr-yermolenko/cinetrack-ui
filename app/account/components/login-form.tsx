@@ -11,6 +11,7 @@ import ResendEmailConfirmation from "./resend-email-confirmation";
 import { logoutUserAction } from "../actions/logout-user-action";
 import { useRouter } from "next/navigation";
 import { getLoginUrl } from "../utils/url-utils";
+import Link from "next/link";
 
 interface LoginFormProps {
   returnUrl?: string;
@@ -49,7 +50,7 @@ export default function LoginForm({ returnUrl, isAuthError }: LoginFormProps) {
   }, [actionState]);
 
   useEffect(() => {
-    // If the user was redirected to this page due to an authentication error,
+    // If the user was redirected to this page due to an authentication error (access token expired),
     // we should log them out to clear invalid access token and redirect to this page again
     // without isAuthError flag to avoid infinite loop
     if (isAuthError) {
@@ -119,7 +120,15 @@ export default function LoginForm({ returnUrl, isAuthError }: LoginFormProps) {
                 error={passwordError}
               />
             </div>
-            <hr className="border-gray-300 my-4"></hr>
+            <div className="mt-3">
+              <Link
+                href="/account/forgot-password"
+                className="text-gray-600 hover:text-blue-600 transition-colors"
+              >
+                Forgot Password?
+              </Link>
+            </div>
+            <hr className="border-gray-300 mt-2 mb-4"></hr>
             <div>
               {!isResendConfirmationVisible && (
                 <button
