@@ -4,7 +4,7 @@ import { apiClient } from "@/lib/api-client";
 import { Registration } from "../types/registration";
 import { RegistrationResponse } from "../types/registration-response";
 
-export async function RegisterUser(
+export async function registerUser(
   login: Registration,
 ): Promise<RegistrationResponse> {
   return apiClient.post<RegistrationResponse>(

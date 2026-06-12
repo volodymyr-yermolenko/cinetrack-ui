@@ -24,7 +24,7 @@ export default async function ConfirmEmailErrorPage({
     case EmailConfirmationErrorReason.TokenExpired:
       content = (
         <div>
-          <p className="text-gray-700 mt-4">
+          <p className="mt-4">
             Confirmation token has expired. This can happen if you received the
             confirmation email a while ago and didn’t click the link in time.
             You can request a new confirmation email to be sent to your email

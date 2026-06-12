@@ -2,7 +2,7 @@
 
 import { ActionResult } from "@/types/action-result";
 import { formatZodFieldErrors } from "@/lib/utils/zod-utils";
-import { LoginUser } from "../api/login-user";
+import { loginUser } from "../api/login-user";
 import { redirect } from "next/navigation";
 import z from "zod";
 import { LoginStatus } from "../types/login-status";
@@ -27,7 +27,7 @@ export async function loginUserAction(
 
   const { returnUrl, ...loginData } = validatedData.data;
 
-  const result = await execute(() => LoginUser({ ...loginData }));
+  const result = await execute(() => loginUser({ ...loginData }));
   if (!result.success) {
     return {
       success: false,

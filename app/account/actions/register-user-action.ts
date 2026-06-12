@@ -4,7 +4,7 @@ import { execute } from "@/lib/utils/api-utils";
 import { formatZodFieldErrors } from "@/lib/utils/zod-utils";
 import { ActionResult } from "@/types/action-result";
 import z from "zod";
-import { RegisterUser } from "../api/register-user";
+import { registerUser } from "../api/register-user";
 import { redirect } from "next/navigation";
 import {
   EMAIL_REGEX,
@@ -29,7 +29,7 @@ export async function registerUserAction(
     };
   }
 
-  const result = await execute(() => RegisterUser({ ...validatedData.data }));
+  const result = await execute(() => registerUser({ ...validatedData.data }));
   if (!result.success) {
     return {
       success: false,

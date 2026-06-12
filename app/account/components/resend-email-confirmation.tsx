@@ -73,10 +73,10 @@ export default function ResendEmailConfirmation({
   };
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-4">
       {showTitleMessage && (
-        <p className="text-sm">
-          We found an account for <strong>{email}</strong> that hasn’t been
+        <p>
+          We've found an account for <strong>{email}</strong> that hasn’t been
           confirmed yet. Please check your inbox or resend the confirmation
           email.
         </p>
@@ -96,12 +96,15 @@ export default function ResendEmailConfirmation({
         </button>
       </div>
       {isResendComplete && (
-        <p className="text-sm">
-          Confirmation email has been resent! Please check your inbox. You can
-          resend another confirmation email after {resendInterval} seconds.
-        </p>
+        <div className="text-sm">
+          <p>Confirmation email has been resent!</p>
+          <p>
+            Please check your inbox. You can resend it after {resendInterval}{" "}
+            seconds.
+          </p>
+        </div>
       )}
-      <FormErrors errors={resendErrors} className="mt-4" />
+      <FormErrors errors={resendErrors} className="mt-2" />
     </div>
   );
 }
